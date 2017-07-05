@@ -1,0 +1,11 @@
+package: github.com/SestroAI/Visits
+import:
+- package: github.com/SestroAI/shared
+  subpackages:
+  - dao
+  - models/auth
+  - models/restaurant
+  - models/visits
+  - routing
+- package: github.com/emicklei/go-restful
+- package: github.com/google/logger
