@@ -8,5 +8,6 @@ Please change the env variables in app.yaml based on the google/firebase project
 
 ```
 $ gcloud auth login
+$ gcloud config set project <project-id:sestro-165123>
 $ gcloud app deploy
 ```

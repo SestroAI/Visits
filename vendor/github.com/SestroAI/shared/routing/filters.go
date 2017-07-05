@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"github.com/SestroAI/shared"
 	"github.com/SestroAI/shared/dao"
+	"github.com/SestroAI/shared/utils"
 )
 
 var (
@@ -22,6 +23,7 @@ const (
 	RequestUser = "user"
 	RequestToken = "token"
 	RequestDiner = "diner"
+	RequestId = "rId"
 )
 
 func GetJWTFromRequest(req *restful.Request) (string, error) {
@@ -88,6 +90,7 @@ func DinerFilter(req *restful.Request, res *restful.Response, chain *restful.Fil
 
 type AccessEntry struct {
 	Type string
+	RequestID string `json:"requestId"`
 	Path string
 	Start time.Time
 	End time.Time
@@ -99,10 +102,15 @@ func LoggingFilter(req *restful.Request, res *restful.Response, chain *restful.F
 	entry.Type = "User Access Log"
 	entry.Start = time.Now()
 	entry.Path = req.Request.URL.Path
+
+	entry.RequestID = utils.GenerateUUID()
 	user, _ := req.Attribute(RequestUser).(*auth.User)
 	if user != nil {
 		entry.User = user.ID
 	}
+
+	req.SetAttribute(RequestId, entry.RequestID)
+
 	chain.ProcessFilter(req, res)
 	entry.End = time.Now()
 

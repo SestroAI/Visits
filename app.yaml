@@ -14,6 +14,9 @@ automatic_scaling:
     target_utilization: 0.5
 
 env_variables:
-  FIREBASE_URL: 'AIzaSyD4plUukMrvo4MAwSi6pq4oVssu3MXGs8g'
-  GOOGLE_PROJECT_ID: 'sestro-test'
-  FIREBASE_API_KEY: 'https://sestro-test.firebaseio.com'
+  FIREBASE_API_KEY: 'AIzaSyDUqBlFZQj7hJK60nbCrFohlW8t35vo_QE'
+  GOOGLE_PROJECT_ID: 'sestro-165123'
+  FIREBASE_URL: 'https://sestro-165123.firebaseio.com'
+  APP_HOST_SCHEME: 'http'
+  APP_HOST: 'api.sestro.io'
+  APP_HOST_PORT: '80'

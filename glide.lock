@@ -1,10 +1,12 @@
 hash: 2e314fed02854a54dbe69c1b730b64ed070bceb207b790d925fc02240f5fd506
-updated: 2017-07-05T11:03:19.202772248-07:00
+updated: 2017-07-05T12:48:34.39482446-07:00
 imports:
 - name: github.com/emicklei/go-restful
   version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
   subpackages:
   - log
+- name: github.com/emicklei/go-restful-swagger12
+  version: dcef7f55730566d41eae5db10e7d6981829720f6
 - name: github.com/google/logger
   version: f7ee3f06fe52710d18e679d7fc19a6baec611139
 - name: github.com/google/uuid
@@ -12,7 +14,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: 7416fbf17cba4075500a15121e2f4a1ad9a15107
+  version: fc8dce419dd3e94dc7ce4f3cea62368f72d03147
   subpackages:
   - config
   - dao
