@@ -18,15 +18,15 @@ func GetCorsConfig(allowedDomains []string, wsContainer *restful.Container) rest
 	return cors
 }
 
-func AddSwaggerConfig(wsContainer *restful.Container)  {
+func AddSwaggerConfig()  {
 	swaggerConfig := swagger.Config{
-		WebServices:    wsContainer.RegisteredWebServices(), // you control what services are visible
+		WebServices:    restful.RegisteredWebServices(), // you control what services are visible
 		WebServicesUrl: fmt.Sprintf("%s://%s:%d", config.AppScheme, config.AppHost, config.AppPort),
 		ApiPath:        "/apidocs.json",
 
 		// Optionally, specify where the UI is located
-		//SwaggerPath:     "/apidocs/",
-		//SwaggerFilePath: config.SwaggerRoot,
+		SwaggerPath:     "/apidocs/",
+		SwaggerFilePath: "./static/dist/",
 	}
-	swagger.RegisterSwaggerService(swaggerConfig, wsContainer)
+	swagger.InstallSwaggerService(swaggerConfig)
 }

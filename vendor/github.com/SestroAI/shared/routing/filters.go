@@ -29,7 +29,7 @@ const (
 func GetJWTFromRequest(req *restful.Request) (string, error) {
 	header := req.Request.Header.Get("Authorization")
 	if header == "" {
-		header = req.Request.URL.Query().Get("autorization")
+		header = req.Request.URL.Query().Get("authorization")
 	}
 	if header == ""{
 		return "", ErrNotAuthenticated
