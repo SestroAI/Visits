@@ -1,0 +1,34 @@
+{
+  "rules": {
+    ".read" : "auth != null",
+    ".write" : "auth != null",
+    "users" : {
+      ".read" : "auth != null",
+      ".write" : "auth != null",
+      "diners" : {
+        "$diner" : {
+          ".validate" : "newData.hasChildren(['visits'])",
+          ".read" : "$diner == auth.uid",
+          ".write" : "$diner == auth.uid"
+        }
+      }
+    },
+
+    "restaurants" : {
+
+    },
+
+    "visits" : {
+
+    },
+
+    "transactions" : {
+      ".read" : "auth != null",
+      ".write" : "auth != null",
+      "$transaction" : {
+        //Only allow
+        ".validate" : "newData.child('timestamp').isNumber() && newData.child('timestamp').val() < now && newData.child('timestamp').val() > (now - 100000) && root.child('visits').hasChild(newData.child('visitId').val())"
+      }
+    }
+  }
+}

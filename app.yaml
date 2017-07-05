@@ -1,0 +1,19 @@
+runtime: custom
+env: flex
+service: visits
+
+network:
+  forwarded_ports:
+    - 80:8080
+
+automatic_scaling:
+  min_num_instances: 2
+  max_num_instances: 3
+  cool_down_period_sec: 120 # default value
+  cpu_utilization:
+    target_utilization: 0.5
+
+env_variables:
+  FIREBASE_URL: 'AIzaSyD4plUukMrvo4MAwSi6pq4oVssu3MXGs8g'
+  GOOGLE_PROJECT_ID: 'sestro-test'
+  FIREBASE_API_KEY: 'https://sestro-test.firebaseio.com'
