@@ -17,20 +17,22 @@ type Cuisine struct {
 }
 
 type Table struct {
-	ID string
-	RestaurantId string
+	ID string `json:"id"`
+	RestaurantId string `json:"restaurantId"`
+	OngoingVisitId string `json:"ongoingVisitId"`
+	Name string `json:"name"`
 }
 
 type Item struct {
 	ID string
-	RestaurantId string
-	PriceInDollar float32
-	AverageRating float32
+	RestaurantId string `json:"restaurantId"`
+	PriceInDollar float32 `json:"priceInDollar"`
+	AverageRating float32 `json:"averageRating"`
 }
 
 type Rating struct{
 	ID string
-	DinerId string
+	DinerId string `json:"dinerId"`
 	Rating int
 	Time time.Time
 	Comments string
@@ -38,5 +40,5 @@ type Rating struct{
 
 type ItemRating struct {
 	Rating
-	ItemId string
+	ItemId string `json:"itemId"`
 }

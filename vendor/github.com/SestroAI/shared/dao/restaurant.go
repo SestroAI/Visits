@@ -3,7 +3,7 @@ package dao
 import (
 	"github.com/SestroAI/shared/models/restaurant"
 	"github.com/google/logger"
-	"errors"
+	"github.com/SestroAI/shared/models/visits"
 )
 
 type RestaurantDao struct {
@@ -11,7 +11,10 @@ type RestaurantDao struct {
 	BasePath string
 }
 
-const RESTAURANT_BASE_PATH = "/restaurants"
+const (
+	RESTAURANT_BASE_PATH = "/restaurants"
+	RESTAURANT_TABLE_RELATIVE_PATH = "/tables"
+)
 
 
 func NewRestaurantDao(token string) *RestaurantDao {
@@ -21,7 +24,7 @@ func NewRestaurantDao(token string) *RestaurantDao {
 	}
 }
 
-func (ref *RestaurantDao) SaveRestaurant(id string, restro restaurant.Restaurant) error {
+func (ref *RestaurantDao) SaveRestaurant(id string, restro *restaurant.Restaurant) error {
 	err := ref.SaveObjectById(id, restro, ref.BasePath)
 
 	if err != nil {
@@ -32,13 +35,49 @@ func (ref *RestaurantDao) SaveRestaurant(id string, restro restaurant.Restaurant
 	return nil
 }
 
-func (ref *RestaurantDao) GetRestaurant(id string) (*restaurant.Restaurant, error) {
-	object, _ := ref.GetObjectById(id, ref.BasePath)
+func (ref *RestaurantDao) GetRestaurantById(id string) (*restaurant.Restaurant, error) {
+	object, err := ref.GetObjectById(id, ref.BasePath)
 	if object == nil {
-		return nil, errors.New("Unable to get RESTAURANT with id = " + id)
+		return nil, err
 	}
 
 	restro := restaurant.Restaurant{}
 	MapToStruct(object.(map[string]interface{}), &restro)
 	return &restro, nil
+}
+
+func (ref *RestaurantDao) GetTableById(id string) (*restaurant.Table, error) {
+	object, err := ref.GetObjectById(id, ref.BasePath + RESTAURANT_TABLE_RELATIVE_PATH)
+	if object == nil || err != nil {
+		return nil, err
+	}
+
+	table := restaurant.Table{}
+	MapToStruct(object.(map[string]interface{}), &table)
+	return &table, nil
+}
+
+func (ref *RestaurantDao) SaveTable(id string, table *restaurant.Table) error {
+	err := ref.SaveObjectById(id, table, ref.BasePath + RESTAURANT_TABLE_RELATIVE_PATH)
+
+	if err != nil {
+		logger.Errorf("Unable to save Table object with Id = %s", id)
+		return err
+	}
+
+	return nil
+}
+
+func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.RestaurantVisit) error {
+	table, err := ref.GetTableById(tableId)
+	if err != nil{
+		return err
+	}
+
+	table.OngoingVisitId = visit.ID
+	err = ref.SaveTable(table.ID, table)
+	if err != nil {
+		return err
+	}
+	return nil
 }

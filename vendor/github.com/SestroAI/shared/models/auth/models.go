@@ -42,6 +42,7 @@ type User struct {
 type Diner struct{
 	ID string
 	Visits map[string]bool
+	OngoingVisitId string `json:"ongoingVisitId"`
 }
 
 //Firebase User Provider account

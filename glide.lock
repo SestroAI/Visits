@@ -1,5 +1,5 @@
 hash: 2e314fed02854a54dbe69c1b730b64ed070bceb207b790d925fc02240f5fd506
-updated: 2017-07-05T12:48:34.39482446-07:00
+updated: 2017-07-05T19:40:51.268060433-07:00
 imports:
 - name: github.com/emicklei/go-restful
   version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
@@ -14,7 +14,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: 0d70c597996c545739eba39109a25d0160bdb890
+  version: 884e3406a864fef24e1c8c8c84e9802f396808dd
   subpackages:
   - config
   - dao
@@ -24,6 +24,7 @@ imports:
   - models/visits
   - routing
   - utils
+  - utils/errors
 - name: golang.org/x/sys
   version: 94b76065f2d2081d0fef24a6e67c571f51a6408a
   subpackages:

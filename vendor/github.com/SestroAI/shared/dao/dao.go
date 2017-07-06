@@ -33,6 +33,12 @@ func (ref *Dao) PrepareURL(url string) string {
 	return url
 }
 
+func (ref *Dao) PrepareRequest(req *http.Request) {
+	q := req.URL.Query()
+	q.Add("auth", ref.Token)
+	req.URL.RawQuery = q.Encode()
+}
+
 func (ref *Dao) GetObjectById(id string, objectPath string) (interface{}, error) {
 	var objectInstance interface{}
 	url := ref.FireBaseURL + objectPath + "/" + id + ".json"

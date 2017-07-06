@@ -8,6 +8,7 @@ import(
 	"errors"
 
 	"github.com/google/logger"
+	"github.com/SestroAI/shared/models/visits"
 )
 
 const(
@@ -38,6 +39,9 @@ func NewUserDao(token string) *UserDao {
 }
 
 func (ref *UserDao) GetUser() (*auth.User, error) {
+	/*
+	This will not work with the user generated token. It has to be admin token or firbase api key
+	 */
 	queryData := FireBaseUserQuery{ID: ref.Token}
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(queryData)
@@ -70,7 +74,7 @@ func (ref *UserDao) GetUser() (*auth.User, error) {
 	return user, nil
 }
 
-func (ref *UserDao) SaveDiner(id string, diner auth.Diner) error {
+func (ref *UserDao) SaveDiner(id string, diner *auth.Diner) error {
 	err := ref.SaveObjectById(id, diner, ref.BasePath + DINER_RELATIVE_PATH)
 
 	if err != nil {
@@ -89,6 +93,17 @@ func (ref *UserDao) GetDiner(id string) (*auth.Diner, error) {
 	diner := auth.Diner{}
 	MapToStruct(object.(map[string]interface{}), &diner)
 	return &diner, nil
+}
+
+func (ref *UserDao) UpdateDinerOngoingVisit(dinerId string, visit *visits.RestaurantVisit) error {
+	diner, err := ref.GetDiner(dinerId)
+	if err != nil {
+		return err
+	}
+
+	diner.OngoingVisitId = visit.ID
+	err = ref.SaveDiner(diner.ID, diner)
+	return err
 }
 
 /*

@@ -34,7 +34,7 @@ func main()  {
 	}, wsContainer)
 
 	wsContainer.Filter(cors.Filter)
-	routing.AddSwaggerConfig(wsContainer)
+	routing.AddSwaggerConfig()
 
 	logger.Init("SestroVisitService", false, false, os.Stderr)
 
