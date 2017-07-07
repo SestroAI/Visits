@@ -2,33 +2,30 @@ package dao
 
 import (
 	"github.com/SestroAI/shared/models/restaurant"
-	"github.com/google/logger"
 	"github.com/SestroAI/shared/models/visits"
+	"errors"
 )
 
 type RestaurantDao struct {
 	Dao
-	BasePath string
 }
 
 const (
-	RESTAURANT_BASE_PATH = "/restaurants"
-	RESTAURANT_TABLE_RELATIVE_PATH = "/tables"
+	RESTAURANT_PATH = "/restaurants"
+	TABLE_PATH = "/tables"
 )
 
 
 func NewRestaurantDao(token string) *RestaurantDao {
 	return &RestaurantDao{
 		Dao: *NewDao(token),
-		BasePath:RESTAURANT_BASE_PATH,
 	}
 }
 
 func (ref *RestaurantDao) SaveRestaurant(id string, restro *restaurant.Restaurant) error {
-	err := ref.SaveObjectById(id, restro, ref.BasePath)
+	err := ref.SaveObjectById(id, restro, RESTAURANT_PATH)
 
 	if err != nil {
-		logger.Errorf("Unable to save RESTAURANT object with Id = %s", id)
 		return err
 	}
 
@@ -36,9 +33,9 @@ func (ref *RestaurantDao) SaveRestaurant(id string, restro *restaurant.Restauran
 }
 
 func (ref *RestaurantDao) GetRestaurantById(id string) (*restaurant.Restaurant, error) {
-	object, err := ref.GetObjectById(id, ref.BasePath)
+	object, _ := ref.GetObjectById(id, RESTAURANT_PATH)
 	if object == nil {
-		return nil, err
+		return nil, errors.New("Unable to get diner with id = " + id)
 	}
 
 	restro := restaurant.Restaurant{}
@@ -47,9 +44,9 @@ func (ref *RestaurantDao) GetRestaurantById(id string) (*restaurant.Restaurant, 
 }
 
 func (ref *RestaurantDao) GetTableById(id string) (*restaurant.Table, error) {
-	object, err := ref.GetObjectById(id, ref.BasePath + RESTAURANT_TABLE_RELATIVE_PATH)
-	if object == nil || err != nil {
-		return nil, err
+	object, _ := ref.GetObjectById(id, TABLE_PATH)
+	if object == nil {
+		return nil, errors.New("Unable to get diner with id = " + id)
 	}
 
 	table := restaurant.Table{}
@@ -58,10 +55,9 @@ func (ref *RestaurantDao) GetTableById(id string) (*restaurant.Table, error) {
 }
 
 func (ref *RestaurantDao) SaveTable(id string, table *restaurant.Table) error {
-	err := ref.SaveObjectById(id, table, ref.BasePath + RESTAURANT_TABLE_RELATIVE_PATH)
+	err := ref.SaveObjectById(id, table, TABLE_PATH)
 
 	if err != nil {
-		logger.Errorf("Unable to save Table object with Id = %s", id)
 		return err
 	}
 

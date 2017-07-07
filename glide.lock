@@ -1,5 +1,5 @@
 hash: 2e314fed02854a54dbe69c1b730b64ed070bceb207b790d925fc02240f5fd506
-updated: 2017-07-05T19:40:51.268060433-07:00
+updated: 2017-07-06T18:11:21.671184148-07:00
 imports:
 - name: github.com/emicklei/go-restful
   version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
@@ -7,6 +7,11 @@ imports:
   - log
 - name: github.com/emicklei/go-restful-swagger12
   version: dcef7f55730566d41eae5db10e7d6981829720f6
+- name: github.com/garyburd/redigo
+  version: 57f1cd7de6175c96b423e7ac2534ff2b39e2ef79
+  subpackages:
+  - internal
+  - redis
 - name: github.com/google/logger
   version: f7ee3f06fe52710d18e679d7fc19a6baec611139
 - name: github.com/google/uuid
@@ -14,10 +19,11 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: 884e3406a864fef24e1c8c8c84e9802f396808dd
+  version: 1934582e67ec20da62c7761be136efe759965786
   subpackages:
   - config
   - dao
+  - logger
   - models/auth
   - models/restaurant
   - models/transactions
@@ -25,6 +31,7 @@ imports:
   - routing
   - utils
   - utils/errors
+  - utils/sestro_redis
 - name: golang.org/x/sys
   version: 94b76065f2d2081d0fef24a6e67c571f51a6408a
   subpackages:

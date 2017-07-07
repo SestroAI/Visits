@@ -7,13 +7,13 @@ import(
 	"encoding/json"
 	"errors"
 
-	"github.com/google/logger"
+	"github.com/SestroAI/shared/logger"
 	"github.com/SestroAI/shared/models/visits"
 )
 
 const(
 	FIREBASE_PROFILE_ENDPOINT = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key="
-	DINER_RELATIVE_PATH = "/diners"
+	DINER_PATH = "/users/diners"
 	USER_BASE_PATH = "/users"
 )
 
@@ -28,13 +28,11 @@ type FirebaseUserResponse struct {
 
 type UserDao struct {
 	Dao
-	BasePath string
 }
 
 func NewUserDao(token string) *UserDao {
 	return &UserDao{
 		Dao: *NewDao(token),
-		BasePath:USER_BASE_PATH,
 	}
 }
 
@@ -75,7 +73,7 @@ func (ref *UserDao) GetUser() (*auth.User, error) {
 }
 
 func (ref *UserDao) SaveDiner(id string, diner *auth.Diner) error {
-	err := ref.SaveObjectById(id, diner, ref.BasePath + DINER_RELATIVE_PATH)
+	err := ref.SaveObjectById(id, diner, DINER_PATH)
 
 	if err != nil {
 		logger.Errorf("Unable to save Diner object with Id = %s", id)
@@ -86,7 +84,7 @@ func (ref *UserDao) SaveDiner(id string, diner *auth.Diner) error {
 }
 
 func (ref *UserDao) GetDiner(id string) (*auth.Diner, error) {
-	object, _ := ref.GetObjectById(id, ref.BasePath + DINER_RELATIVE_PATH)
+	object, _ := ref.GetObjectById(id, DINER_PATH)
 	if object == nil {
 		return nil, errors.New("Unable to get diner with id = " + id)
 	}

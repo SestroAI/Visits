@@ -5,6 +5,14 @@ import(
 	"strconv"
 )
 
+//Restful Request Attributes
+const (
+	RequestUser = "user"
+	RequestToken = "token"
+	RequestDiner = "diner"
+	RequestId = "rId"
+)
+
 var(
 	AppScheme = os.Getenv("APP_HOST_SCHEME")
 	AppHost = os.Getenv("APP_HOST")

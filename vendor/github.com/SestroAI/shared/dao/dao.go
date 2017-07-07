@@ -3,7 +3,7 @@ package dao
 import (
 	"net/http"
 	"encoding/json"
-	"github.com/google/logger"
+	"github.com/SestroAI/shared/logger"
 	"bytes"
 
 	"github.com/SestroAI/shared/config"
@@ -45,7 +45,11 @@ func (ref *Dao) GetObjectById(id string, objectPath string) (interface{}, error)
 	url = ref.PrepareURL(url)
 	res, err := http.Get(url)
 	if err != nil {
+		logger.Errorf("Unable to get object at url %s from firebase", url)
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	err = json.NewDecoder(res.Body).Decode(&objectInstance)
 	if err != nil {

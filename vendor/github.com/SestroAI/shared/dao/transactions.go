@@ -1,26 +1,28 @@
 package dao
 
 import (
-	"github.com/google/logger"
+	"github.com/SestroAI/shared/logger"
 	"errors"
 
 	"github.com/SestroAI/shared/models/transactions"
 )
 
+const (
+	TRANSACTION_PATH = "/transactions"
+)
+
 type TransactionDao struct {
 	Dao
-	BasePath string
 }
 
-func NewTransactionDao(token string) *VisitDao {
-	return &VisitDao{
+func NewTransactionDao(token string) *TransactionDao {
+	return &TransactionDao{
 		Dao: *NewDao(token),
-		BasePath:VISIT_BASE_PATH,
 	}
 }
 
-func (ref *TransactionDao) SaveTransaction(id string, diner transactions.Transaction) error {
-	err := ref.SaveObjectById(id, diner, ref.BasePath)
+func (ref *TransactionDao) SaveTransaction(id string, transaction transactions.Transaction) error {
+	err := ref.SaveObjectById(id, transaction, TRANSACTION_PATH)
 
 	if err != nil {
 		logger.Errorf("Unable to save Transaction object with Id = %s", id)
@@ -31,7 +33,7 @@ func (ref *TransactionDao) SaveTransaction(id string, diner transactions.Transac
 }
 
 func (ref *TransactionDao) GetTransaction(id string) (*transactions.Transaction, error) {
-	object, _ := ref.GetObjectById(id, ref.BasePath)
+	object, _ := ref.GetObjectById(id, TRANSACTION_PATH)
 	if object == nil {
 		return nil, errors.New("Unable to get Transaction with id = " + id)
 	}

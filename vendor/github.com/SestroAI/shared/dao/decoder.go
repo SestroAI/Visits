@@ -2,7 +2,7 @@ package dao
 
 import (
 	"github.com/mitchellh/mapstructure"
-	"github.com/google/logger"
+	"github.com/SestroAI/shared/logger"
 )
 
 func MapToStruct(mapstruct map[string]interface{}, structInterface interface{}){

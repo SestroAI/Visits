@@ -4,7 +4,7 @@ import (
 	"github.com/emicklei/go-restful"
 	"strings"
 	"errors"
-	"github.com/google/logger"
+	"github.com/SestroAI/shared/logger"
 	"github.com/SestroAI/shared/models/auth"
 	"github.com/SestroAI/shared/config"
 	"net/http"
@@ -17,13 +17,6 @@ import (
 
 var (
 	ErrNotAuthenticated = errors.New("No authorisation token found.")
-)
-
-const (
-	RequestUser = "user"
-	RequestToken = "token"
-	RequestDiner = "diner"
-	RequestId = "rId"
 )
 
 func GetJWTFromRequest(req *restful.Request) (string, error) {
@@ -41,50 +34,48 @@ func GetJWTFromRequest(req *restful.Request) (string, error) {
 func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain){
 	token, err := GetJWTFromRequest(req)
 	if err != nil {
-		logger.Infof("User not authenticated. Anonymoud request! Error: ", err.Error())
+		//User is not authenticated
 		chain.ProcessFilter(req, res)
 		return
 	}
+
 	user, err := shared.VerifyIDToken(token, config.GetGoogleProjectID())
 	if err != nil {
-		logger.Infof("In-valid ID Token with error : %s. Cannot continue", err.Error())
-		res.WriteErrorString(http.StatusUnauthorized, "In-valid ID Token")
+		res.WriteErrorString(http.StatusUnauthorized, "Token is Invalid or Expired")
 		return
 	}
 
-	req.SetAttribute(RequestUser, user)
-	req.SetAttribute(RequestToken, token)
+	req.SetAttribute(config.RequestUser, user)
+	req.SetAttribute(config.RequestToken, token)
 	chain.ProcessFilter(req, res)
 	return
 }
 
 func LoggedInFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain)  {
-	user, _ := req.Attribute(RequestUser).(*auth.User)
-	token, _ := req.Attribute(RequestToken).(string)
+	user, _ := req.Attribute(config.RequestUser).(*auth.User)
+	token, _ := req.Attribute(config.RequestToken).(string)
 	if user == nil || token == ""{
-		logger.Infof("Anonymoud User not allowed")
-		res.WriteErrorString(http.StatusUnauthorized, "Un-authorized user. Log-In required")
+		res.WriteErrorString(http.StatusUnauthorized, "Log-In required")
 		return
 	}
 	chain.ProcessFilter(req, res)
 }
 
 func DinerFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain){
-	user, _ := req.Attribute(RequestUser).(*auth.User)
-	token, _ := req.Attribute(RequestToken).(string)
+	user, _ := req.Attribute(config.RequestUser).(*auth.User)
+	token, _ := req.Attribute(config.RequestToken).(string)
 	if user == nil || token == ""{
-		logger.Infof("Anonymoud User is not a Diner")
-		res.WriteErrorString(http.StatusUnauthorized, "Un-authorized user")
+		res.WriteErrorString(http.StatusUnauthorized, "User is not a valid 'Diner'")
 		return
 	}
 	userDao := dao.NewUserDao(token)
 	uid := user.ID
 	diner, err := userDao.GetDiner(uid)
 	if err != nil {
-		res.WriteErrorString(http.StatusUnauthorized, "Not a valid diner.")
+		res.WriteErrorString(http.StatusUnauthorized, "User is not a valid 'Diner'")
 		return
 	}
-	req.SetAttribute(RequestDiner, diner)
+	req.SetAttribute(config.RequestDiner, diner)
 	chain.ProcessFilter(req, res)
 }
 
@@ -94,7 +85,8 @@ type AccessEntry struct {
 	Path string
 	Start time.Time
 	End time.Time
-	User string
+	Token string
+	Request http.Request
 }
 
 func LoggingFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain){
@@ -104,21 +96,17 @@ func LoggingFilter(req *restful.Request, res *restful.Response, chain *restful.F
 	entry.Path = req.Request.URL.Path
 
 	entry.RequestID = utils.GenerateUUID()
-	user, _ := req.Attribute(RequestUser).(*auth.User)
-	if user != nil {
-		entry.User = user.ID
-	}
-
-	req.SetAttribute(RequestId, entry.RequestID)
+	entry.Request = *req.Request
+	req.SetAttribute(config.RequestId, entry.RequestID)
 
 	chain.ProcessFilter(req, res)
+
 	entry.End = time.Now()
 
 	log, err := json.Marshal(&entry)
 	if err != nil {
-		logger.Errorf("Unable to log the access entry!")
 		return
 	}
-	logger.Infof(string(log))
+	logger.ReqInfof(req, string(log))
 	return
 }

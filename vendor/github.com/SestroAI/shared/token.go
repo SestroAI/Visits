@@ -13,7 +13,7 @@ import(
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"github.com/SestroAI/shared/dao"
 	"github.com/SestroAI/shared/models/auth"
-	"github.com/google/logger"
+	"github.com/SestroAI/shared/logger"
 )
 
 /*
