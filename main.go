@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/emicklei/go-restful"
 	"net/http"
-	"github.com/google/logger"
+	"github.com/SestroAI/shared/logger"
 
 	"github.com/SestroAI/shared/routing"
 	"github.com/SestroAI/Visits/services/visits/endpoints"
@@ -36,9 +36,8 @@ func main()  {
 	wsContainer.Filter(cors.Filter)
 	routing.AddSwaggerConfig()
 
-	logger.Init("SestroVisitService", false, false, os.Stderr)
-
 	logger.Infof("Sestro Visit API Server: Start listening on port 8080")
 	server := &http.Server{Addr: ":8080", Handler: wsContainer}
-	logger.Fatal(server.ListenAndServe())
+	server.ListenAndServe().Error()
+	os.Exit(-1)
 }

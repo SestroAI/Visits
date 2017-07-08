@@ -8,7 +8,9 @@ type Restaurant struct {
 	ID      string
 	Name    string
 	Address string
-	CuisineId string //Cuisine ID
+	CuisineId string `json:"cuisineId"`//Cuisine ID
+	URL string `json:"url"`
+	YelpLink string `json:"yelpLink"`
 }
 
 type Cuisine struct {

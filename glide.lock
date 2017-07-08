@@ -1,5 +1,5 @@
-hash: 2e314fed02854a54dbe69c1b730b64ed070bceb207b790d925fc02240f5fd506
-updated: 2017-07-06T18:11:21.671184148-07:00
+hash: ab9568687e6a73a0af6186bbdc612e2aaa60e20b4ef83f2c85a9f5df11b3df71
+updated: 2017-07-07T15:36:11.59125913-07:00
 imports:
 - name: github.com/emicklei/go-restful
   version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
@@ -12,14 +12,12 @@ imports:
   subpackages:
   - internal
   - redis
-- name: github.com/google/logger
-  version: f7ee3f06fe52710d18e679d7fc19a6baec611139
 - name: github.com/google/uuid
   version: 6a5e28554805e78ea6141142aba763936c4761c0
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: 1934582e67ec20da62c7761be136efe759965786
+  version: adc9451ce11f03f3b9f078503d1c1aaf73a5888d
   subpackages:
   - config
   - dao
@@ -32,12 +30,6 @@ imports:
   - utils
   - utils/errors
   - utils/sestro_redis
-- name: golang.org/x/sys
-  version: 94b76065f2d2081d0fef24a6e67c571f51a6408a
-  subpackages:
-  - windows
-  - windows/registry
-  - windows/svc/eventlog
 - name: gopkg.in/dgrijalva/jwt-go.v3
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 testImports: []

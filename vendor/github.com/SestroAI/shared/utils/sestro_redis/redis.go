@@ -4,6 +4,7 @@ import(
 	"github.com/garyburd/redigo/redis"
 	"os"
 	"github.com/SestroAI/shared/logger"
+	"fmt"
 )
 
 var redisPool *redis.Pool
@@ -13,8 +14,12 @@ func init()  {
 	redisPassword := os.Getenv("REDIS_PASSWORD")
 
 	if redisAddr == "" {
-		logger.Errorf("No REDIS_ADDR env variable found.")
+		logger.Errorf("No REDIS_ADDR env variable found")
 		os.Exit(-1)
+	}
+
+	if redisPassword == "" {
+		logger.Errorf("Redis Password if empty")
 	}
 
 	redisPool = &redis.Pool{
@@ -62,4 +67,14 @@ func (rconn *RedisConn) GetKeyValueFromRedis(key string) (interface{}, error) {
 		return nil, err
 	}
 	return value, nil
+}
+
+
+func main() {
+	fmt.Println("Hello, playground")
+	sr_conn := GetNewRedisConnection()
+
+	redis_key := "341414" + "::" + "32423"
+	value, err := sr_conn.GetKeyValueFromRedis(redis_key)
+	fmt.Print(value, err)
 }

@@ -25,33 +25,33 @@ func IdempotencyFilter(req *restful.Request, res *restful.Response, chain *restf
 	sr_conn := sestro_redis.GetNewRedisConnection()
 	redis_key := user.ID + "::" + iid
 	value, err := sr_conn.GetKeyValueFromRedis(redis_key)
-	if err == nil && value.(string) != ""{
-		//This is a repeated IID for this user.
-		value = value.(string)
-		if value == "1"{
-			//Last execution was successful, return alreadyreported
-			res.WriteHeader(http.StatusAlreadyReported)
-			return
-		}
+	if err == nil && value != nil {
+			int_value, ok := value.(uint8)
+			if  ok {
+				//This is a repeated IID for this user.
+				if int_value == 1 {
+					//Last execution was successful, return alreadyreported
+					res.WriteHeader(http.StatusAlreadyReported)
+					return
+				}
+			}
 	} else {
 		//Save iid in cache
-		err = sr_conn.SaveKeyValueInRedis(redis_key, false)
+		err = sr_conn.SaveKeyValueInRedis(redis_key, 0) //"0" means failure, by default
 		if err != nil {
 			logger.Errorf("Unable to write in cache error: %s", err.Error())
 		}
 	}
-	final_value := true
 
 	//Execute Request
 	chain.ProcessFilter(req, res)
 
 	//Post Processing
-	if res.Error() != nil {
+	if res.Error() == nil {
 		//Request was not successful
-		final_value = false
-	}
-	err = sr_conn.SaveKeyValueInRedis(redis_key, final_value)
-	if err != nil {
-		logger.Errorf("Unable to write in cache error: %s", err.Error())
+		err = sr_conn.SaveKeyValueInRedis(redis_key, 1) //"1" means successful
+		if err != nil {
+			logger.Errorf("Unable to write in cache error: %s", err.Error())
+		}
 	}
 }
