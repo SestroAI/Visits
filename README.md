@@ -1,22 +1,34 @@
-# Sestro Visit Service
+# Sestro RMS (Restaurant Management)
+
+## API Docs
+
+https://api.stage.sestro.io/v1/visits/apidocs.json
 
 ## Config
 
-Please change the env variables in app.yaml based on the google/firebase project you want to deploy to
+Please change the env variables in app.yaml 
+at https://github.com/SestroAI/envrionments/blob/master/stage.sestro-165123/visits.yaml
 
-## Update vendor shared library
-
-```
-#Remove shared repo cache
-$ sudo rm -r ~/.glide/cache/src/https-github.com-SestroAI-shared/
-$ glide up
-$ glide install -v
-```
-
-## Deploy
+## API Specs
 
 ```
-$ gcloud auth login
-$ gcloud config set project <project-id:sestro-165123>
-$ gcloud app deploy
+Base Path: /v1/visits/
+
+1) POST /
+
+   data: 
+    {
+        "merchantId" : "grren-barn",
+        "tableId" : "green-barn-1",
+        "geoLatitude" : "",
+        "geoLongitude" : ""
+    }
+
+    Output:
+    {
+        "visitId" : "<uuid>",
+        "sessionId" : "<uuid>"
+    }
+
+Will create a new visit if this is the first user, otherwise add to existing
 ```
