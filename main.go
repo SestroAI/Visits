@@ -8,19 +8,18 @@ import (
 	"github.com/SestroAI/shared/routing"
 	"github.com/SestroAI/Visits/services/visits/endpoints"
 	"os"
+	"github.com/SestroAI/shared/utils"
 )
 
 
 type APIService struct {
-
 }
 
 func main()  {
 	wsContainer := restful.NewContainer()
 
 	u := endpoints.VisitResource{}
-
-	u.Register(wsContainer)
+	u.Register(wsContainer, utils.GetServicePrefix())
 
 	wsContainer.Filter(routing.AuthorisationFilter)
 	wsContainer.Filter(routing.LoggingFilter)
@@ -33,6 +32,6 @@ func main()  {
 
 	logger.Infof("Sestro Visit API Server: Start listening on port 8080")
 	server := &http.Server{Addr: ":8080", Handler: wsContainer}
-	server.ListenAndServe().Error()
+	server.ListenAndServe()
 	os.Exit(-1)
 }
