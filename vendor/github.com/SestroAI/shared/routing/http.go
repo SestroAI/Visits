@@ -5,28 +5,48 @@ import (
 	"fmt"
 	"github.com/SestroAI/shared/config"
 	"github.com/emicklei/go-restful-swagger12"
+	"os"
 )
 
+var defaultAllowedDomains = []string{
+	"localhost:8080",
+	"https://sestro.io",
+	"https://stage.sestro.io",
+	"https://dashboard.sestro.io",
+	"https://dashboard.stage.sestro.io",
+}
+
 func GetCorsConfig(allowedDomains []string, wsContainer *restful.Container) restful.CrossOriginResourceSharing {
+
+	if len(allowedDomains) == 0 {
+		allowedDomains = defaultAllowedDomains
+	}
+
 	cors := restful.CrossOriginResourceSharing{
 		ExposeHeaders:  []string{"X-Set-Authorization"},
-		AllowedHeaders: []string{"Content-Type", "Accept", "Authorization"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "OPTIONS", "DELETE"},
 		CookiesAllowed: true,
 		AllowedDomains: allowedDomains,
 		Container:      wsContainer}
 	return cors
 }
 
-func AddSwaggerConfig()  {
+func AddSwaggerConfig(container *restful.Container)  {
+	wd, err := os.Getwd()
+	if err != nil {
+		wd = "./"
+	}
+
 	swaggerConfig := swagger.Config{
-		WebServices:    restful.RegisteredWebServices(), // you control what services are visible
+		WebServices:    container.RegisteredWebServices(), // you control what services are visible
 		WebServicesUrl: fmt.Sprintf("%s://%s:%d", config.AppScheme, config.AppHost, config.AppPort),
-		ApiPath:        "/apidocs.json",
+		ApiPath:        "/v1/" + config.ServiceName + "/apidocs.json",
 
 		// Optionally, specify where the UI is located
-		SwaggerPath:     "/apidocs/",
-		SwaggerFilePath: "./static/dist/",
+		SwaggerPath:     "/v1/" + config.ServiceName + "/apidocs/",
+		SwaggerFilePath: wd + "/static/dist/",
 	}
-	swagger.InstallSwaggerService(swaggerConfig)
+	//swagger.InstallSwaggerService(swaggerConfig)
+	swagger.RegisterSwaggerService(swaggerConfig, container)
 }

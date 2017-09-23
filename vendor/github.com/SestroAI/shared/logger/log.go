@@ -55,6 +55,7 @@ func NewLog(req *restful.Request, message string, level string) {
 	}
 
 	fmt.Fprintf(os.Stderr, string(data))
+	fmt.Fprintf(os.Stderr, "\n")
 }
 
 func ReqErrorf(req *restful.Request, format string, v ...interface{}) {

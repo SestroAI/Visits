@@ -13,7 +13,6 @@ import(
 
 const(
 	FIREBASE_PROFILE_ENDPOINT = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key="
-	DINER_PATH = "/users/diners"
 	USER_BASE_PATH = "/users"
 )
 
@@ -23,7 +22,7 @@ type FireBaseUserQuery struct {
 
 type FirebaseUserResponse struct {
 	Kind string
-	Users []*auth.User
+	Users []*auth.FirebaseUser
 }
 
 type UserDao struct {
@@ -36,7 +35,7 @@ func NewUserDao(token string) *UserDao {
 	}
 }
 
-func (ref *UserDao) GetUser() (*auth.User, error) {
+func (ref *UserDao) GetFirebaseUser() (*auth.FirebaseUser, error) {
 	/*
 	This will not work with the user generated token. It has to be admin token or firbase api key
 	 */
@@ -72,8 +71,29 @@ func (ref *UserDao) GetUser() (*auth.User, error) {
 	return user, nil
 }
 
-func (ref *UserDao) SaveDiner(id string, diner *auth.Diner) error {
-	err := ref.SaveObjectById(id, diner, DINER_PATH)
+func (ref *UserDao) RegisterFirebaseUser(userId string, roles []*auth.Role) (*auth.User, error) {
+	if len(roles) == 0 {
+		roles = append(roles, auth.DefaultRole())
+	}
+
+	firebaseUser, err := ref.GetFirebaseUser()
+	if err != nil {
+		return nil, err
+	}
+
+	user := auth.User{FirebaseUser: *firebaseUser}
+	user.Roles = roles
+	user.CustomerProfile = &auth.UserCustomerProfile{}
+	err = ref.SaveUser(user.ID, &user)
+	if err != nil {
+		logger.Infof("Unable to save user with ID = %s", user.ID)
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (ref *UserDao) SaveUser(id string, diner *auth.User) error {
+	err := ref.SaveObjectById(id, diner, USER_BASE_PATH)
 
 	if err != nil {
 		logger.Errorf("Unable to save Diner object with Id = %s", id)
@@ -83,24 +103,24 @@ func (ref *UserDao) SaveDiner(id string, diner *auth.Diner) error {
 	return nil
 }
 
-func (ref *UserDao) GetDiner(id string) (*auth.Diner, error) {
-	object, _ := ref.GetObjectById(id, DINER_PATH)
+func (ref *UserDao) GetUser(id string) (*auth.User, error) {
+	object, _ := ref.GetObjectById(id, USER_BASE_PATH)
 	if object == nil {
 		return nil, errors.New("Unable to get diner with id = " + id)
 	}
-	diner := auth.Diner{}
-	MapToStruct(object.(map[string]interface{}), &diner)
-	return &diner, nil
+	user := auth.User{}
+	MapToStruct(object.(map[string]interface{}), &user)
+	return &user, nil
 }
 
-func (ref *UserDao) UpdateDinerOngoingVisit(dinerId string, visit *visits.RestaurantVisit) error {
-	diner, err := ref.GetDiner(dinerId)
+func (ref *UserDao) UpdateDinerOngoingVisit(userId string, visit *visits.MerchantVisit) error {
+	user, err := ref.GetUser(userId)
 	if err != nil {
 		return err
 	}
 
-	diner.OngoingVisitId = visit.ID
-	err = ref.SaveDiner(diner.ID, diner)
+	user.CustomerProfile.OngoingVisitId = visit.ID
+	err = ref.SaveUser(user.ID, user)
 	return err
 }
 

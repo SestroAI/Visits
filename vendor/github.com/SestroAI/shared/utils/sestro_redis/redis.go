@@ -13,14 +13,11 @@ func init()  {
 	redisAddr := os.Getenv("REDIS_ADDR")
 	redisPassword := os.Getenv("REDIS_PASSWORD")
 
-	if redisAddr == "" {
-		logger.Errorf("No REDIS_ADDR env variable found")
+	if redisAddr == "" || redisPassword == "" {
+		logger.Errorf("No REDIS_ADDR env variable found. Please ignore if you are not using redis")
 		os.Exit(-1)
 	}
 
-	if redisPassword == "" {
-		logger.Errorf("Redis Password if empty")
-	}
 
 	redisPool = &redis.Pool{
 		Dial: func() (redis.Conn, error) {

@@ -26,15 +26,10 @@ func main()  {
 	wsContainer.Filter(routing.LoggingFilter)
 	wsContainer.Filter(wsContainer.OPTIONSFilter)
 
-	cors := routing.GetCorsConfig([]string{
-		"localhost:",
-		"sestro.io",
-		"www.sestro.io",
-		"stage-dev.sestro.io",
-	}, wsContainer)
+	cors := routing.GetCorsConfig([]string{}, wsContainer)
 
 	wsContainer.Filter(cors.Filter)
-	routing.AddSwaggerConfig()
+	routing.AddSwaggerConfig(wsContainer)
 
 	logger.Infof("Sestro Visit API Server: Start listening on port 8080")
 	server := &http.Server{Addr: ":8080", Handler: wsContainer}

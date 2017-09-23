@@ -1,9 +1,10 @@
 package dao
 
 import (
-	"github.com/SestroAI/shared/models/restaurant"
+	"github.com/SestroAI/shared/models/merchant"
 	"github.com/SestroAI/shared/models/visits"
 	"errors"
+	"fmt"
 )
 
 type RestaurantDao struct {
@@ -22,7 +23,7 @@ func NewRestaurantDao(token string) *RestaurantDao {
 	}
 }
 
-func (ref *RestaurantDao) SaveRestaurant(id string, restro *restaurant.Restaurant) error {
+func (ref *RestaurantDao) SaveRestaurant(id string, restro *merchant.Merchant) error {
 	err := ref.SaveObjectById(id, restro, RESTAURANT_PATH)
 
 	if err != nil {
@@ -32,29 +33,34 @@ func (ref *RestaurantDao) SaveRestaurant(id string, restro *restaurant.Restauran
 	return nil
 }
 
-func (ref *RestaurantDao) GetRestaurantById(id string) (*restaurant.Restaurant, error) {
-	object, _ := ref.GetObjectById(id, RESTAURANT_PATH)
-	if object == nil {
-		return nil, errors.New("Unable to get diner with id = " + id)
+func (ref *RestaurantDao) GetRestaurantById(id string) (*merchant.Merchant, error) {
+	object, err := ref.GetObjectById(id, RESTAURANT_PATH)
+	if err != nil || object == nil{
+		return nil, err
 	}
 
-	restro := restaurant.Restaurant{}
-	MapToStruct(object.(map[string]interface{}), &restro)
-	return &restro, nil
+	restro := merchant.Merchant{}
+
+	err = MapToStruct(object.(map[string]interface{}), &restro)
+
+	fmt.Println("restro = ", restro, object)
+
+	return &restro, err
 }
 
-func (ref *RestaurantDao) GetTableById(id string) (*restaurant.Table, error) {
-	object, _ := ref.GetObjectById(id, TABLE_PATH)
-	if object == nil {
-		return nil, errors.New("Unable to get diner with id = " + id)
+func (ref *RestaurantDao) GetTableById(id string) (*merchant.Table, error) {
+	object, err := ref.GetObjectById(id, TABLE_PATH)
+	if err != nil || object == nil {
+		return nil, errors.New("Unable to get restaurant with id = " + id)
 	}
 
-	table := restaurant.Table{}
-	MapToStruct(object.(map[string]interface{}), &table)
-	return &table, nil
+	table := merchant.Table{}
+	err = MapToStruct(object.(map[string]interface{}), &table)
+
+	return &table, err
 }
 
-func (ref *RestaurantDao) SaveTable(id string, table *restaurant.Table) error {
+func (ref *RestaurantDao) SaveTable(id string, table *merchant.Table) error {
 	err := ref.SaveObjectById(id, table, TABLE_PATH)
 
 	if err != nil {
@@ -64,7 +70,7 @@ func (ref *RestaurantDao) SaveTable(id string, table *restaurant.Table) error {
 	return nil
 }
 
-func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.RestaurantVisit) error {
+func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.MerchantVisit) error {
 	table, err := ref.GetTableById(tableId)
 	if err != nil{
 		return err

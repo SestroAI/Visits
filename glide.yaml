@@ -7,4 +7,5 @@ import:
   - models/restaurant
   - models/visits
   - routing
+  version: d10918d24c73dab557500a2e86d77f64c872b74a
 - package: github.com/emicklei/go-restful

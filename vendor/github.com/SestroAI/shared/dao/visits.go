@@ -24,7 +24,7 @@ func NewVisitDao(token string) *VisitDao {
 	}
 }
 
-func (ref *VisitDao) StartNewVisit(diner *auth.Diner, tableId string) (*visits.RestaurantVisit, error) {
+func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.MerchantVisit, error) {
 
 	//Check if table is empty
 	restaurantDao := NewRestaurantDao(ref.Token)
@@ -42,7 +42,7 @@ func (ref *VisitDao) StartNewVisit(diner *auth.Diner, tableId string) (*visits.R
 		return visit, errors.New("Already exists")
 	}
 
-	visit := visits.NewRestaurantVisit("")
+	visit := visits.NewMerchantVisit("")
 	visit.TableId = tableId
 
 	visitorSession := visits.NewVisitDinerSession("")
@@ -74,7 +74,7 @@ func (ref *VisitDao) StartNewVisit(diner *auth.Diner, tableId string) (*visits.R
 }
 
 
-func (ref *VisitDao) SaveVisit(id string, visit *visits.RestaurantVisit) error {
+func (ref *VisitDao) SaveVisit(id string, visit *visits.MerchantVisit) error {
 	err := ref.SaveObjectById(id, visit, VISIT_PATH)
 
 	if err != nil {
@@ -85,13 +85,13 @@ func (ref *VisitDao) SaveVisit(id string, visit *visits.RestaurantVisit) error {
 	return nil
 }
 
-func (ref *VisitDao) GetVisit(id string) (*visits.RestaurantVisit, error) {
+func (ref *VisitDao) GetVisit(id string) (*visits.MerchantVisit, error) {
 	object, _ := ref.GetObjectById(id, VISIT_PATH)
 	if object == nil {
 		return nil, errors.New("Unable to get Visit with id = " + id)
 	}
 
-	visit := visits.RestaurantVisit{}
+	visit := visits.MerchantVisit{}
 	MapToStruct(object.(map[string]interface{}), &visit)
 
 	return &visit, nil

@@ -39,10 +39,23 @@ func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *res
 		return
 	}
 
-	user, err := shared.VerifyIDToken(token, config.GetGoogleProjectID())
+	uid, err := shared.VerifyIDToken(token, config.GetGoogleProjectID())
 	if err != nil {
+		logger.ReqInfof(req, "Invalid user token with err = %s", err.Error())
 		res.WriteErrorString(http.StatusUnauthorized, "Token is Invalid or Expired")
 		return
+	}
+
+	var ref = dao.NewUserDao(token)
+	user, err := ref.GetUser(uid)
+	if err != nil {
+		//New user. Register
+		user, err = ref.RegisterFirebaseUser(uid, nil) //nil perms means default
+		if err != nil {
+			logger.ReqErrorf(req, "Unable to register the new user with ID = %s", uid)
+			res.WriteErrorString(http.StatusInternalServerError, "Unable to register the user.")
+			return
+		}
 	}
 
 	req.SetAttribute(config.RequestUser, user)
@@ -58,24 +71,6 @@ func LoggedInFilter(req *restful.Request, res *restful.Response, chain *restful.
 		res.WriteErrorString(http.StatusUnauthorized, "Log-In required")
 		return
 	}
-	chain.ProcessFilter(req, res)
-}
-
-func DinerFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain){
-	user, _ := req.Attribute(config.RequestUser).(*auth.User)
-	token, _ := req.Attribute(config.RequestToken).(string)
-	if user == nil || token == ""{
-		res.WriteErrorString(http.StatusUnauthorized, "User is not a valid 'Diner'")
-		return
-	}
-	userDao := dao.NewUserDao(token)
-	uid := user.ID
-	diner, err := userDao.GetDiner(uid)
-	if err != nil {
-		res.WriteErrorString(http.StatusUnauthorized, "User is not a valid 'Diner'")
-		return
-	}
-	req.SetAttribute(config.RequestDiner, diner)
 	chain.ProcessFilter(req, res)
 }
 

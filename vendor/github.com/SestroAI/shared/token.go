@@ -11,9 +11,6 @@ import(
 	"encoding/json"
 
 	"gopkg.in/dgrijalva/jwt-go.v3"
-	"github.com/SestroAI/shared/dao"
-	"github.com/SestroAI/shared/models/auth"
-	"github.com/SestroAI/shared/logger"
 )
 
 /*
@@ -48,14 +45,14 @@ const (
 	clientCertURL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 )
 
-func VerifyIDToken(idToken string, googleProjectID string) (*auth.User, error) {
+func VerifyIDToken(idToken string, googleProjectID string) (string, error) {
 	/*
 		Returns User ID from a validated JWT token. Returns error if token is not valid/expired
 	*/
 	keys, err := fetchPublicKeys()
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	parsedToken, err := jwt.Parse(idToken, func(token *jwt.Token) (interface{}, error) {
@@ -76,7 +73,7 @@ func VerifyIDToken(idToken string, googleProjectID string) (*auth.User, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	errMessage := ""
@@ -91,19 +88,13 @@ func VerifyIDToken(idToken string, googleProjectID string) (*auth.User, error) {
 		errMessage = "Firebase Auth ID token has invalid 'sub' claim"
 	}
 	if errMessage != "" {
-		return nil, errors.New(errMessage)
+		return "", errors.New(errMessage)
 	}
 
 	uid := string(claims["user_id"].(string))
 
-	var ref = dao.NewUserDao(idToken)
-	user, err := ref.GetUser()
-	if err != nil {
-		logger.Errorf("No User with ID = %s found for corresponding valid ID Token Error: %s", uid, err.Error())
-		return nil, errors.New("No such user exists. Please validate your auth token!")
-	}
 
-	return user, nil
+	return uid, nil
 }
 
 func fetchPublicKeys() (map[string]*json.RawMessage, error) {

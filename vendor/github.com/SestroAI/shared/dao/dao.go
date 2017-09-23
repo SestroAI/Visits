@@ -9,6 +9,7 @@ import (
 	"github.com/SestroAI/shared/config"
 	"io/ioutil"
 	"errors"
+	"strconv"
 )
 
 type Dao struct {
@@ -45,15 +46,20 @@ func (ref *Dao) GetObjectById(id string, objectPath string) (interface{}, error)
 	url = ref.PrepareURL(url)
 	res, err := http.Get(url)
 	if err != nil {
-		logger.Errorf("Unable to get object at url %s from firebase", url)
+		logger.Errorf("Unable to get object at url %s from firebase with err = %s", url, err.Error())
 		return nil, err
 	}
 	if res == nil {
 		return nil, nil
 	}
+
+	if res.StatusCode != http.StatusOK{
+		return nil, errors.New("Unable to get object at url " + url +" with firebase response status " + res.Status )
+	}
+
 	err = json.NewDecoder(res.Body).Decode(&objectInstance)
 	if err != nil {
-		logger.Errorf("Unable to get diner object with ID = %s and Error: %s", id, err.Error())
+		logger.Errorf("Unable to get object with ID = %s and Error: %s", id, err.Error())
 		return nil, err
 	}
 
@@ -69,8 +75,7 @@ func (ref *Dao) SaveObjectById(id string, object interface{}, objectPath string)
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodPut, url, b)
 	if err != nil {
-		logger.Errorf("Unable to create PUT request to save object")
-		panic(object)
+		logger.Errorf("Unable to create PUT request to save object with Error = %s", err.Error())
 		return err
 	}
 	res, err := client.Do(req)
@@ -82,8 +87,8 @@ func (ref *Dao) SaveObjectById(id string, object interface{}, objectPath string)
 	if res.StatusCode != http.StatusOK {
 		defer res.Body.Close()
 		b, _ := ioutil.ReadAll(res.Body)
-		logger.Errorf("Unable to sabe object with ID = %s and firebase response: %s", id, string(b))
-		return errors.New("Unable to save object. Http error")
+		logger.Errorf("Unable to save object with ID = %s and firebase response: %s", id, string(b))
+		return errors.New("Unable to save object. Firebase returned code: " + strconv.Itoa(res.StatusCode))
 	}
 	return nil
 }

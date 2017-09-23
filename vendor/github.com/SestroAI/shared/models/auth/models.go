@@ -1,5 +1,9 @@
 package auth
 
+import (
+	"github.com/SestroAI/shared/config"
+)
+
 /*
 Sample User Account from Firebase
 {
@@ -25,31 +29,52 @@ Sample User Account from Firebase
  */
 
 //Firebase user profile
-type User struct {
+type FirebaseUser struct {
 	ID string `json:"localId"`
 	Email string
 	EmailVerified bool `json:"emailVerified"`
 	DisplayName string `json:"displayName"`
-	Accounts []*UserAccount `json:"providerUserInfo"`
+	Accounts []*FirebaseUserAccount `json:"providerUserInfo"`
 	PhotoUrl string `json:"photoUrl"`
 	ValidSince string `json:"validSince"`
 	Disabled bool
 	LastLoginAt string `json:"lastLoginAt"`
 	CreatedAt string `json:"createdAt"`
-	CustomeAuth bool `json:"customeAuth"`
+	CustomAuth bool `json:"customAuth"`
 }
 
-type Diner struct{
-	ID string
+type User struct {
+	FirebaseUser
+	Roles []*Role
+	CustomerProfile *UserCustomerProfile `json:"customerProfile"`
+	MerchantProfile *UserMerchantProfile `json:"userMerchantProfile"`
+}
+
+type UserCustomerProfile struct{
 	Visits map[string]bool
 	OngoingVisitId string `json:"ongoingVisitId"`
 }
 
+type UserMerchantProfile struct{
+	associatedMerchantIds []string `json:"associatedMerchantIds"`
+}
+
+type Role struct {
+	Name string
+	Description string
+}
+
+func DefaultRole() *Role {
+	return &Role{
+		Name: config.DefaultUserRole,
+	}
+}
+
 //Firebase User Provider account
-type UserAccount struct {
+type FirebaseUserAccount struct {
 	UID string `json:"uid"`
 	ProviderId string `json:"providerId"`
-	DisaplyName string `json:"disaplyName"`
+	DisplayName string `json:"disaplyName"`
 	PhotoUrl string `json:"photoUrl"`
 	Email string
 	RawId string `json:"rawId"`

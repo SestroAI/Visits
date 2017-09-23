@@ -17,7 +17,13 @@ var(
 	AppScheme = os.Getenv("APP_HOST_SCHEME")
 	AppHost = os.Getenv("APP_HOST")
 	AppPort, _ = strconv.Atoi(os.Getenv("APP_HOST_PORT"))
+	ServiceName = os.Getenv("SERVICE_NAME")
 )
+
+const(
+	DefaultUserRole = "sestro_guest"
+)
+
 
 func GetFirebaseDBAPIKey() string {
 	return os.Getenv("FIREBASE_API_KEY")
