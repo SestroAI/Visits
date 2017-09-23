@@ -1,4 +1,4 @@
-# Sestro RMS (Restaurant Management)
+# Sestro Visit (Manage user visits and sessions)
 
 ## API Docs
 

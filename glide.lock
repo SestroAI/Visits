@@ -1,5 +1,5 @@
-hash: ab9568687e6a73a0af6186bbdc612e2aaa60e20b4ef83f2c85a9f5df11b3df71
-updated: 2017-07-07T15:36:11.59125913-07:00
+hash: b49cf2d59ce3ae48a237dda2ac106126b3c2b8fed30c201fdac27039cfce9e38
+updated: 2017-09-23T16:37:04.164432485-07:00
 imports:
 - name: github.com/emicklei/go-restful
   version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
@@ -23,7 +23,8 @@ imports:
   - dao
   - logger
   - models/auth
-  - models/restaurant
+  - models/merchant
+  - models/merchant/menu
   - models/transactions
   - models/visits
   - routing
