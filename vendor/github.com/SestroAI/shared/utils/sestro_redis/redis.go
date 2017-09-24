@@ -1,15 +1,15 @@
 package sestro_redis
 
-import(
+import (
+	"fmt"
+	"github.com/SestroAI/shared/logger"
 	"github.com/garyburd/redigo/redis"
 	"os"
-	"github.com/SestroAI/shared/logger"
-	"fmt"
 )
 
 var redisPool *redis.Pool
 
-func init()  {
+func init() {
 	redisAddr := os.Getenv("REDIS_ADDR")
 	redisPassword := os.Getenv("REDIS_PASSWORD")
 
@@ -17,7 +17,6 @@ func init()  {
 		logger.Errorf("No REDIS_ADDR env variable found. Please ignore if you are not using redis")
 		os.Exit(-1)
 	}
-
 
 	redisPool = &redis.Pool{
 		Dial: func() (redis.Conn, error) {
@@ -34,7 +33,7 @@ func init()  {
 			}
 			return conn, nil
 		},
-		Wait: false,
+		Wait:      false,
 		MaxActive: 30, //30 is the limit on free redis cache instance
 	}
 }
@@ -65,7 +64,6 @@ func (rconn *RedisConn) GetKeyValueFromRedis(key string) (interface{}, error) {
 	}
 	return value, nil
 }
-
 
 func main() {
 	fmt.Println("Hello, playground")

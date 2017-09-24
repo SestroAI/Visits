@@ -26,62 +26,64 @@ Sample User Account from Firebase
 	"lastLoginAt": "1499034186000",
 	"createdAt": "1498948066000"
 }
- */
+*/
 
 //Firebase user profile
 type FirebaseUser struct {
-	ID string `json:"localId"`
-	Email string
-	EmailVerified bool `json:"emailVerified"`
-	DisplayName string `json:"displayName"`
-	Accounts []*FirebaseUserAccount `json:"providerUserInfo"`
-	PhotoUrl string `json:"photoUrl"`
-	ValidSince string `json:"validSince"`
-	Disabled bool
-	LastLoginAt string `json:"lastLoginAt"`
-	CreatedAt string `json:"createdAt"`
-	CustomAuth bool `json:"customAuth"`
+	ID            string                 `json:"localId",mapstructure:"localId"`
+	Email         string                 `json:"email",mapstructure:"email"`
+	EmailVerified bool                   `json:"emailVerified",mapstructure:"emailVerified"`
+	DisplayName   string                 `json:"displayName",mapstructure:"displayName"`
+	Accounts      []*FirebaseUserAccount `json:"providerUserInfo",mapstructure:"providerUserInfo,squash"`
+	PhotoUrl      string                 `json:"photoUrl",mapstructure:"photoUrl"`
+	ValidSince    string                 `json:"validSince",mapstructure:"validSince"`
+	Disabled      bool                   `json:"disabled",mapstructure:"disabled"`
+	LastLoginAt   string                 `json:"lastLoginAt",mapstructure:"lastLoginAt"`
+	CreatedAt     string                 `json:"createdAt",mapstructure:"createdAt"`
+	CustomAuth    bool                   `json:"customAuth",mapstructure:"customAuth"`
 }
 
 type User struct {
-	FirebaseUser
-	Roles []*Role
-	CustomerProfile *UserCustomerProfile `json:"customerProfile"`
-	MerchantProfile *UserMerchantProfile `json:"userMerchantProfile"`
+	FirebaseUser    `mapstructure:",squash"`
+	Roles           []*Role              `json:"roles",mapstructure:"roles,squash"`
+	CustomerProfile *UserCustomerProfile `json:"customerProfile",mapstructure:",squash"`
+	MerchantProfile *UserMerchantProfile `json:"userMerchantProfile",mapstructure:",squash"`
 }
 
-type UserCustomerProfile struct{
-	Visits map[string]bool
-	OngoingVisitId string `json:"ongoingVisitId"`
+type UserCustomerProfile struct {
+	Visits         map[string]bool `json:"visits",mapstructure:"visits"`
+	OngoingVisitId string          `json:"ongoingVisitId",mapstructure:"ongoingVisitId"`
 }
 
-type UserMerchantProfile struct{
-	associatedMerchantIds []string `json:"associatedMerchantIds"`
+type UserMerchantProfile struct {
+	associatedMerchantIds []string `json:"associatedMerchantIds",mapstructure:"associatedMerchantInfo"`
 }
 
 type Role struct {
-	Name string
-	Description string
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func DefaultRole() *Role {
 	return &Role{
-		Name: config.DefaultUserRole,
+		Name:        config.DefaultUserRole,
+		Description: "Default Role assigned by Sestro",
 	}
 }
 
 //Firebase User Provider account
 type FirebaseUserAccount struct {
-	UID string `json:"uid"`
-	ProviderId string `json:"providerId"`
+	UID         string `json:"uid"`
+	ProviderId  string `json:"providerId"`
 	DisplayName string `json:"disaplyName"`
-	PhotoUrl string `json:"photoUrl"`
-	Email string
-	RawId string `json:"rawId"`
+	PhotoUrl    string `json:"photoUrl"`
+	Email       string `json:"email"`
+	RawId       string `json:"rawId"`
 	FederatedId string `json:"federatedId"`
-	ScreenName string `json:"screenName"`
+	ScreenName  string `json:"screenName"`
 }
+
 /*
 Resources:
 1. https://firebase.google.com/docs/reference/rest/auth/
- */
+*/

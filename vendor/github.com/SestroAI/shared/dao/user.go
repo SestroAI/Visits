@@ -1,19 +1,19 @@
 package dao
 
-import(
-	"github.com/SestroAI/shared/models/auth"
-	"net/http"
+import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SestroAI/shared/models/auth"
+	"net/http"
 
 	"github.com/SestroAI/shared/logger"
 	"github.com/SestroAI/shared/models/visits"
 )
 
-const(
+const (
 	FIREBASE_PROFILE_ENDPOINT = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key="
-	USER_BASE_PATH = "/users"
+	USER_BASE_PATH            = "/users"
 )
 
 type FireBaseUserQuery struct {
@@ -21,7 +21,7 @@ type FireBaseUserQuery struct {
 }
 
 type FirebaseUserResponse struct {
-	Kind string
+	Kind  string
 	Users []*auth.FirebaseUser
 }
 
@@ -37,8 +37,8 @@ func NewUserDao(token string) *UserDao {
 
 func (ref *UserDao) GetFirebaseUser() (*auth.FirebaseUser, error) {
 	/*
-	This will not work with the user generated token. It has to be admin token or firbase api key
-	 */
+		This will not work with the user generated token. It has to be admin token or firbase api key
+	*/
 	queryData := FireBaseUserQuery{ID: ref.Token}
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(queryData)
@@ -57,7 +57,7 @@ func (ref *UserDao) GetFirebaseUser() (*auth.FirebaseUser, error) {
 		return nil, err
 	}
 
-	if len(responseObject.Users) == 0{
+	if len(responseObject.Users) == 0 {
 		return nil, errors.New("No User exists with token = " + ref.Token)
 	}
 
@@ -104,12 +104,20 @@ func (ref *UserDao) SaveUser(id string, diner *auth.User) error {
 }
 
 func (ref *UserDao) GetUser(id string) (*auth.User, error) {
-	object, _ := ref.GetObjectById(id, USER_BASE_PATH)
+	object, err := ref.GetObjectById(id, USER_BASE_PATH)
 	if object == nil {
 		return nil, errors.New("Unable to get diner with id = " + id)
 	}
+	if err != nil {
+		return nil, err
+	}
 	user := auth.User{}
-	MapToStruct(object.(map[string]interface{}), &user)
+	_ = MapToStruct(object.(map[string]interface{}), &user)
+
+	user.ID = object.(map[string]interface{})["localId"].(string)
+	/*Todo
+	Handle the map struct errorin a better way
+	*/
 	return &user, nil
 }
 
@@ -127,4 +135,4 @@ func (ref *UserDao) UpdateDinerOngoingVisit(userId string, visit *visits.Merchan
 /*
 Resources:
 1. https://firebase.google.com/docs/reference/rest/auth/
- */
+*/

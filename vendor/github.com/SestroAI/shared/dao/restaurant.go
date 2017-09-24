@@ -1,10 +1,9 @@
 package dao
 
 import (
+	"errors"
 	"github.com/SestroAI/shared/models/merchant"
 	"github.com/SestroAI/shared/models/visits"
-	"errors"
-	"fmt"
 )
 
 type RestaurantDao struct {
@@ -13,9 +12,8 @@ type RestaurantDao struct {
 
 const (
 	RESTAURANT_PATH = "/restaurants"
-	TABLE_PATH = "/tables"
+	TABLE_PATH      = "/tables"
 )
-
 
 func NewRestaurantDao(token string) *RestaurantDao {
 	return &RestaurantDao{
@@ -24,26 +22,18 @@ func NewRestaurantDao(token string) *RestaurantDao {
 }
 
 func (ref *RestaurantDao) SaveRestaurant(id string, restro *merchant.Merchant) error {
-	err := ref.SaveObjectById(id, restro, RESTAURANT_PATH)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ref.SaveObjectById(id, restro, RESTAURANT_PATH)
 }
 
 func (ref *RestaurantDao) GetRestaurantById(id string) (*merchant.Merchant, error) {
 	object, err := ref.GetObjectById(id, RESTAURANT_PATH)
-	if err != nil || object == nil{
+	if err != nil || object == nil {
 		return nil, err
 	}
 
 	restro := merchant.Merchant{}
 
 	err = MapToStruct(object.(map[string]interface{}), &restro)
-
-	fmt.Println("restro = ", restro, object)
 
 	return &restro, err
 }
@@ -72,7 +62,7 @@ func (ref *RestaurantDao) SaveTable(id string, table *merchant.Table) error {
 
 func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.MerchantVisit) error {
 	table, err := ref.GetTableById(tableId)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 

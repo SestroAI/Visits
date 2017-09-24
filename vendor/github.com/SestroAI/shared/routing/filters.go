@@ -1,18 +1,20 @@
 package routing
 
 import (
-	"github.com/emicklei/go-restful"
-	"strings"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/SestroAI/shared"
+	"github.com/SestroAI/shared/config"
+	"github.com/SestroAI/shared/dao"
 	"github.com/SestroAI/shared/logger"
 	"github.com/SestroAI/shared/models/auth"
-	"github.com/SestroAI/shared/config"
-	"net/http"
-	"time"
-	"encoding/json"
-	"github.com/SestroAI/shared"
-	"github.com/SestroAI/shared/dao"
 	"github.com/SestroAI/shared/utils"
+	"github.com/emicklei/go-restful"
+	"net/http"
+	"os"
+	"strings"
+	"time"
 )
 
 var (
@@ -24,14 +26,13 @@ func GetJWTFromRequest(req *restful.Request) (string, error) {
 	if header == "" {
 		header = req.Request.URL.Query().Get("authorization")
 	}
-	if header == ""{
+	if header == "" {
 		return "", ErrNotAuthenticated
 	}
 	return strings.TrimPrefix(header, "Bearer "), nil
 }
 
-
-func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain){
+func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain) {
 	token, err := GetJWTFromRequest(req)
 	if err != nil {
 		//User is not authenticated
@@ -64,10 +65,10 @@ func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *res
 	return
 }
 
-func LoggedInFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain)  {
+func LoggedInFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain) {
 	user, _ := req.Attribute(config.RequestUser).(*auth.User)
 	token, _ := req.Attribute(config.RequestToken).(string)
-	if user == nil || token == ""{
+	if user == nil || token == "" {
 		res.WriteErrorString(http.StatusUnauthorized, "Log-In required")
 		return
 	}
@@ -75,31 +76,31 @@ func LoggedInFilter(req *restful.Request, res *restful.Response, chain *restful.
 }
 
 type AccessEntry struct {
-	Type string
-	RequestID string `json:"requestId"`
-	Path string
-	Start time.Time
-	End time.Time
-	Token string
-	Request http.Request
+	Type      string    `json:"type"`
+	RequestID string    `json:"requestId"`
+	Path      string    `json:"path"`
+	Start     time.Time `json:"start"`
+	End       time.Time `json:"end"`
+	Token     string    `json:"token"`
+	URL       string    `json:"url"`
 }
 
-func LoggingFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain){
+func LoggingFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain) {
 	entry := AccessEntry{}
 	entry.Type = "User Access Log"
 	entry.Start = time.Now()
 	entry.Path = req.Request.URL.Path
 
 	entry.RequestID = utils.GenerateUUID()
-	entry.Request = *req.Request
+	entry.URL = req.Request.URL.String()
 	req.SetAttribute(config.RequestId, entry.RequestID)
 
 	chain.ProcessFilter(req, res)
 
 	entry.End = time.Now()
-
 	log, err := json.Marshal(&entry)
 	if err != nil {
+		fmt.Fprint(os.Stderr, "Unable to marshal Log Entry with error = "+err.Error())
 		return
 	}
 	logger.ReqInfof(req, string(log))

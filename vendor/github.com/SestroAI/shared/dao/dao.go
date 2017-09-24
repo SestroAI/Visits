@@ -1,28 +1,28 @@
 package dao
 
 import (
-	"net/http"
+	"bytes"
 	"encoding/json"
 	"github.com/SestroAI/shared/logger"
-	"bytes"
+	"net/http"
 
+	"errors"
 	"github.com/SestroAI/shared/config"
 	"io/ioutil"
-	"errors"
 	"strconv"
 )
 
 type Dao struct {
-	APIKey string
-	Token string
+	APIKey      string
+	Token       string
 	FireBaseURL string
 }
 
 func NewDao(token string) *Dao {
 	dao := Dao{
-		Token:token,
-		APIKey:config.GetFirebaseDBAPIKey(),
-		FireBaseURL:config.GetFirebaseDBURL(),
+		Token:       token,
+		APIKey:      config.GetFirebaseDBAPIKey(),
+		FireBaseURL: config.GetFirebaseDBURL(),
 	}
 	return &dao
 }
@@ -53,8 +53,8 @@ func (ref *Dao) GetObjectById(id string, objectPath string) (interface{}, error)
 		return nil, nil
 	}
 
-	if res.StatusCode != http.StatusOK{
-		return nil, errors.New("Unable to get object at url " + url +" with firebase response status " + res.Status )
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New("Unable to get object at url " + url + " with firebase response status " + res.Status)
 	}
 
 	err = json.NewDecoder(res.Body).Decode(&objectInstance)
@@ -66,7 +66,11 @@ func (ref *Dao) GetObjectById(id string, objectPath string) (interface{}, error)
 	return objectInstance, nil
 }
 
-func (ref *Dao) SaveObjectById(id string, object interface{}, objectPath string) (error){
+func (ref *Dao) SaveObjectById(id string, object interface{}, objectPath string) error {
+	if id == "" {
+		return errors.New("Cannot save object with empty ID")
+	}
+
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(object)
 
@@ -79,7 +83,7 @@ func (ref *Dao) SaveObjectById(id string, object interface{}, objectPath string)
 		return err
 	}
 	res, err := client.Do(req)
-	if err != nil  {
+	if err != nil {
 		logger.Errorf("Unable to make req to save object with ID = %s and Error: %s", id, err.Error())
 		return err
 	}

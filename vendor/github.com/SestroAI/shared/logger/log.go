@@ -1,26 +1,26 @@
 package logger
 
-import(
+import (
+	"encoding/json"
 	"fmt"
-	"github.com/emicklei/go-restful"
-	"runtime"
 	"github.com/SestroAI/shared/config"
 	"github.com/SestroAI/shared/models/auth"
-	"encoding/json"
+	"github.com/emicklei/go-restful"
 	"os"
+	"runtime"
 	"time"
 )
 
 type LogFormat struct {
-	Timestamp time.Time
-	Service string
-	GoogleProjectId string `json:"googleProjectId"`
-	Level string
-	Message string
-	RequestId string `json:"requestId"`
-	UserId string `json:"userId"`
-	File string
-	Line int
+	Timestamp       time.Time `json:"timestamp"`
+	Service         string    `json:"service"`
+	GoogleProjectId string    `json:"googleProjectId"`
+	Level           string    `json:"level"`
+	Message         string    `json:"message"`
+	RequestId       string    `json:"requestId"`
+	UserId          string    `json:"userId"`
+	File            string    `json:"file"`
+	Line            int       `json:"line"`
 }
 
 func NewLog(req *restful.Request, message string, level string) {
@@ -45,12 +45,12 @@ func NewLog(req *restful.Request, message string, level string) {
 
 	logObject.Timestamp = time.Now()
 	logObject.Level = level
-	logObject.Service = os.Getenv("SERVICE_NAME")
-	logObject.GoogleProjectId = os.Getenv("GOOGLE_PROJECT_ID")
+	logObject.Service = config.ServiceName
+	logObject.GoogleProjectId = config.GetGoogleProjectID()
 
 	data, err := json.Marshal(logObject)
 	if err != nil {
-		fmt.Fprintf(os.Stderr,"Error: Unable to marshal log object")
+		fmt.Fprintf(os.Stderr, "Error: Unable to marshal log object")
 		return
 	}
 
@@ -61,17 +61,17 @@ func NewLog(req *restful.Request, message string, level string) {
 func ReqErrorf(req *restful.Request, format string, v ...interface{}) {
 	message := ""
 	if len(v) != 0 {
-		message = fmt.Sprintf(format, v)
+		message = fmt.Sprintf(format, v...)
 	} else {
 		message = fmt.Sprintf(format)
 	}
 	NewLog(req, message, "Error")
 }
 
-func Errorf(format string, v ...interface{}){
+func Errorf(format string, v ...interface{}) {
 	message := ""
 	if len(v) != 0 {
-		message = fmt.Sprintf(format, v)
+		message = fmt.Sprintf(format, v...)
 	} else {
 		message = fmt.Sprintf(format)
 	}
@@ -81,17 +81,17 @@ func Errorf(format string, v ...interface{}){
 func ReqInfof(req *restful.Request, format string, v ...interface{}) {
 	message := ""
 	if len(v) != 0 {
-		message = fmt.Sprintf(format, v)
+		message = fmt.Sprintf(format, v...)
 	} else {
 		message = fmt.Sprintf(format)
 	}
 	NewLog(req, message, "Info")
 }
 
-func Infof(format string, v ...interface{}){
+func Infof(format string, v ...interface{}) {
 	message := ""
 	if len(v) != 0 {
-		message = fmt.Sprintf(format, v)
+		message = fmt.Sprintf(format, v...)
 	} else {
 		message = fmt.Sprintf(format)
 	}

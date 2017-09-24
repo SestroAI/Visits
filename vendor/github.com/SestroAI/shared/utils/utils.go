@@ -2,11 +2,11 @@ package utils
 
 import (
 	"github.com/google/uuid"
-	"strings"
 	"math/rand"
+	"strings"
 
-	"strconv"
 	"github.com/SestroAI/shared/config"
+	"strconv"
 )
 
 func GenerateUUID() string {

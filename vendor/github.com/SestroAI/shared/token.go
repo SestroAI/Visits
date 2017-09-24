@@ -1,14 +1,14 @@
 package shared
 
-import(
-	"net/http"
-	"fmt"
-	"strings"
-	"encoding/pem"
-	"crypto/x509"
+import (
 	"crypto/rsa"
-	"errors"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
 
 	"gopkg.in/dgrijalva/jwt-go.v3"
 )
@@ -39,7 +39,7 @@ Sample Firebase standard ID Token
     "sign_in_provider": "google.com"
   }
 }
- */
+*/
 
 const (
 	clientCertURL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
@@ -91,8 +91,10 @@ func VerifyIDToken(idToken string, googleProjectID string) (string, error) {
 		return "", errors.New(errMessage)
 	}
 
-	uid := string(claims["user_id"].(string))
-
+	uid, ok := claims["user_id"].(string)
+	if !ok {
+		return "", errors.New("Unable to get user_id from token")
+	}
 
 	return uid, nil
 }

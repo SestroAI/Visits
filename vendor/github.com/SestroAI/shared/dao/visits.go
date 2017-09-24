@@ -1,16 +1,16 @@
 package dao
 
 import (
-	"github.com/SestroAI/shared/logger"
 	"errors"
+	"github.com/SestroAI/shared/logger"
 
-	"github.com/SestroAI/shared/models/visits"
 	"github.com/SestroAI/shared/models/auth"
+	"github.com/SestroAI/shared/models/visits"
 	serrors "github.com/SestroAI/shared/utils/errors"
 )
 
 const (
-	VISIT_PATH = "/visits"
+	VISIT_PATH         = "/visits"
 	VISIT_SESSION_PATH = "/visit_sessions"
 )
 
@@ -25,69 +25,61 @@ func NewVisitDao(token string) *VisitDao {
 }
 
 func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.MerchantVisit, error) {
-
 	//Check if table is empty
 	restaurantDao := NewRestaurantDao(ref.Token)
 	table, err := restaurantDao.GetTableById(tableId)
 	if err != nil {
-		logger.Errorf("No table with tableId = %s exists to start visit for Diner with id = %s and err = %s", tableId, diner.ID, err.Error())
+		logger.Errorf("No table with tableId = %s exists to start visit for Diner with id = %s and "+
+			"err = %s", tableId, diner.ID, err.Error())
 		return nil, serrors.ErrConflict
 	}
 	if table.OngoingVisitId != "" {
-		logger.Errorf("Cannot start a new visit on tableId = %s for diner id = %s when there is already an active visit going on", tableId, diner.ID)
+		logger.Infof("Cannot start a new visit on tableId = %s for diner id = %s when there is already an "+
+			"active visit going on", tableId, diner.ID)
 		visit, err := ref.GetVisit(table.OngoingVisitId)
 		if err != nil {
 			return nil, err
 		}
-		return visit, errors.New("Already exists")
+		return visit, errors.New("Active Visit for this table already exists")
 	}
 
 	visit := visits.NewMerchantVisit("")
 	visit.TableId = tableId
 
-	visitorSession := visits.NewVisitDinerSession("")
+	visitorSession := visits.NewVisitDinerSession()
 	visitorSession.DinerId = diner.ID
-	err = ref.SaveVisitSession(visitorSession.ID, visitorSession); if err != nil {
+	err = ref.SaveVisitSession(visitorSession.ID, visitorSession)
+	if err != nil {
 		return nil, err
 	}
 
-	visit.Diners[diner.ID] = visitorSession
-	err = ref.SaveVisit(visit.ID, visit); if err != nil {
-		logger.Errorf("Unable to save Visit object (create new visit) with tableId = %s", tableId)
+	visit.Diners[diner.ID] = visitorSession.ID
+	err = ref.SaveVisit(visit.ID, visit)
+	if err != nil {
 		return nil, err
 	}
 
 	err = restaurantDao.UpdateTableOngoingVisit(table.ID, visit)
 	if err != nil {
-		logger.Errorf("Unable to update table ongoing visit for tableId = %s and visit id = %s", tableId, visit.ID)
 		return nil, err
 	}
 
 	userDao := NewUserDao(ref.Token)
 	err = userDao.UpdateDinerOngoingVisit(diner.ID, visit)
-	if err != nil{
-		logger.Errorf("Unable to update visit id = %s for diner id = %s", visit.ID, diner.ID)
+	if err != nil {
 		return nil, err
 	}
 
 	return visit, nil
 }
 
-
 func (ref *VisitDao) SaveVisit(id string, visit *visits.MerchantVisit) error {
-	err := ref.SaveObjectById(id, visit, VISIT_PATH)
-
-	if err != nil {
-		logger.Errorf("Unable to save Visit object with Id = %s", id)
-		return err
-	}
-
-	return nil
+	return ref.SaveObjectById(id, visit, VISIT_PATH)
 }
 
 func (ref *VisitDao) GetVisit(id string) (*visits.MerchantVisit, error) {
-	object, _ := ref.GetObjectById(id, VISIT_PATH)
-	if object == nil {
+	object, err := ref.GetObjectById(id, VISIT_PATH)
+	if object == nil || err != nil {
 		return nil, errors.New("Unable to get Visit with id = " + id)
 	}
 
@@ -101,7 +93,6 @@ func (ref *VisitDao) SaveVisitSession(id string, visitSess *visits.VisitDinerSes
 	err := ref.SaveObjectById(id, *visitSess, VISIT_SESSION_PATH)
 
 	if err != nil {
-		logger.Errorf("Unable to save Visit Session object with Id = %s", id)
 		return err
 	}
 

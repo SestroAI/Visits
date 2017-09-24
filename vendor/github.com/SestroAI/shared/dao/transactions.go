@@ -1,8 +1,8 @@
 package dao
 
 import (
-	"github.com/SestroAI/shared/logger"
 	"errors"
+	"github.com/SestroAI/shared/logger"
 
 	"github.com/SestroAI/shared/models/transactions"
 )

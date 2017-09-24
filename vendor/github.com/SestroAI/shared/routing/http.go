@@ -1,9 +1,9 @@
 package routing
 
 import (
-	"github.com/emicklei/go-restful"
 	"fmt"
 	"github.com/SestroAI/shared/config"
+	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful-swagger12"
 	"os"
 )
@@ -32,7 +32,7 @@ func GetCorsConfig(allowedDomains []string, wsContainer *restful.Container) rest
 	return cors
 }
 
-func AddSwaggerConfig(container *restful.Container)  {
+func AddSwaggerConfig(container *restful.Container) {
 	wd, err := os.Getwd()
 	if err != nil {
 		wd = "./"
