@@ -17,10 +17,14 @@ var (
 	AppHost     = os.Getenv("APP_HOST")
 	AppPort, _  = strconv.Atoi(os.Getenv("APP_HOST_PORT"))
 	ServiceName = os.Getenv("SERVICE_NAME")
+	ServiceAccountKeyPath = os.Getenv("SERVICE_ACCOUNT_KEY_PATH")
 )
 
 const (
 	DefaultUserRole = "sestro_guest"
+	DefaultServiceRole = "sestro_admin_service"
+
+	ClientCertURL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 )
 
 func GetFirebaseDBAPIKey() string {

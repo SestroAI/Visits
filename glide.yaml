@@ -6,5 +6,6 @@ import:
   - models/auth
   - models/merchant
   - models/visits
+  - models/orders
   - routing
 - package: github.com/emicklei/go-restful

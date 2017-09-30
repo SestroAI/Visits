@@ -1,5 +1,5 @@
-hash: b49cf2d59ce3ae48a237dda2ac106126b3c2b8fed30c201fdac27039cfce9e38
-updated: 2017-09-23T16:37:04.164432485-07:00
+hash: b8e8a2826f2d9dc4fb8ab91c2cb9bff85130ee3e0c1fec950e9c9480c8be5203
+updated: 2017-09-30T12:36:01.66710048-07:00
 imports:
 - name: github.com/emicklei/go-restful
   version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
@@ -17,7 +17,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: 11d368ddc629afd7f35588655a9fb952607e385a
+  version: d092a2b9320bac88039c2613f5495daf44c7483f
   subpackages:
   - config
   - dao
@@ -25,6 +25,7 @@ imports:
   - models/auth
   - models/merchant
   - models/merchant/menu
+  - models/orders
   - models/transactions
   - models/visits
   - routing

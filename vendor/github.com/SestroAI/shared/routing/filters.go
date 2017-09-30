@@ -40,7 +40,7 @@ func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *res
 		return
 	}
 
-	uid, err := shared.VerifyIDToken(token, config.GetGoogleProjectID())
+	uid, err := shared.VerifyUserIDToken(token, config.GetGoogleProjectID())
 	if err != nil {
 		logger.ReqInfof(req, "Invalid user token with err = %s", err.Error())
 		res.WriteErrorString(http.StatusUnauthorized, "Token is Invalid or Expired")

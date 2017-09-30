@@ -13,6 +13,7 @@ type RestaurantDao struct {
 const (
 	RESTAURANT_PATH = "/restaurants"
 	TABLE_PATH      = "/tables"
+	MERCHANT_STRIPE_INFO_PATH = "/merchant_stripe_info"
 )
 
 func NewRestaurantDao(token string) *RestaurantDao {
@@ -38,6 +39,22 @@ func (ref *RestaurantDao) GetRestaurantById(id string) (*merchant.Merchant, erro
 	return &restro, err
 }
 
+func (ref *RestaurantDao) GetMerchantStripeInfo(merchantId string) (*merchant.MerchantStripeInfo, error) {
+	object, err := ref.GetObjectById(merchantId, MERCHANT_STRIPE_INFO_PATH)
+	if err != nil || object == nil {
+		return nil, errors.New("Unable to get merchant stripe info with id = " + merchantId)
+	}
+
+	info := merchant.MerchantStripeInfo{}
+	err = MapToStruct(object, &info)
+
+	return &info, err
+}
+
+func (ref *RestaurantDao) SaveMerchantStripeInfo(id string, info *merchant.MerchantStripeInfo) error {
+	return ref.SaveObjectById(id, info, MERCHANT_STRIPE_INFO_PATH)
+}
+
 func (ref *RestaurantDao) GetTableById(id string) (*merchant.Table, error) {
 	object, err := ref.GetObjectById(id, TABLE_PATH)
 	if err != nil || object == nil {
@@ -51,13 +68,7 @@ func (ref *RestaurantDao) GetTableById(id string) (*merchant.Table, error) {
 }
 
 func (ref *RestaurantDao) SaveTable(id string, table *merchant.Table) error {
-	err := ref.SaveObjectById(id, table, TABLE_PATH)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ref.SaveObjectById(id, table, TABLE_PATH)
 }
 
 func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.MerchantVisit) error {

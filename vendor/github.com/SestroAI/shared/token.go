@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"gopkg.in/dgrijalva/jwt-go.v3"
+	"github.com/SestroAI/shared/config"
 )
 
 /*
@@ -41,27 +42,26 @@ Sample Firebase standard ID Token
 }
 */
 
-const (
-	clientCertURL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
-)
-
-func VerifyIDToken(idToken string, googleProjectID string) (string, error) {
+func VerifyToken(idToken, clientCertURL, aud, iss , pkId string) (map[string]interface{}, error) {
 	/*
 		Returns User ID from a validated JWT token. Returns error if token is not valid/expired
 	*/
-	keys, err := fetchPublicKeys()
+	keys, err := fetchPublicKeys(clientCertURL)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	parsedToken, err := jwt.Parse(idToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		kid := token.Header["kid"]
+		kid, ok := token.Header["kid"].(string)
+		if !ok {
+			kid = pkId
+		}
 
-		certPEM := string(*keys[kid.(string)])
+		certPEM := string(*keys[kid])
 		certPEM = strings.Replace(certPEM, "\\n", "\n", -1)
 		certPEM = strings.Replace(certPEM, "\"", "", -1)
 		block, _ := pem.Decode([]byte(certPEM))
@@ -73,22 +73,35 @@ func VerifyIDToken(idToken string, googleProjectID string) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	errMessage := ""
 
 	claims := parsedToken.Claims.(jwt.MapClaims)
 
-	if claims["aud"].(string) != googleProjectID {
+	if claims["aud"].(string) != aud {
 		errMessage = "Firebase Auth ID token has incorrect 'aud' claim: " + claims["aud"].(string)
-	} else if claims["iss"].(string) != "https://securetoken.google.com/"+googleProjectID {
+	} else if claims["iss"].(string) != iss {
 		errMessage = "Firebase Auth ID token has incorrect 'iss' claim"
 	} else if claims["sub"].(string) == "" || len(claims["sub"].(string)) > 128 {
 		errMessage = "Firebase Auth ID token has invalid 'sub' claim"
 	}
 	if errMessage != "" {
-		return "", errors.New(errMessage)
+		return nil, errors.New(errMessage)
+	}
+
+	return claims, nil
+}
+
+func VerifyUserIDToken(token, googleProjectId string) (string, error) {
+	iss := "https://securetoken.google.com/"+ googleProjectId
+	claims, err := VerifyToken(token,
+		config.ClientCertURL,
+		googleProjectId,
+		iss, "")
+	if err != nil {
+		return "", nil
 	}
 
 	uid, ok := claims["user_id"].(string)
@@ -99,7 +112,7 @@ func VerifyIDToken(idToken string, googleProjectID string) (string, error) {
 	return uid, nil
 }
 
-func fetchPublicKeys() (map[string]*json.RawMessage, error) {
+func fetchPublicKeys(clientCertURL string) (map[string]*json.RawMessage, error) {
 	resp, err := http.Get(clientCertURL)
 
 	if err != nil {

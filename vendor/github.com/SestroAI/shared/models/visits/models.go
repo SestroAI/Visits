@@ -4,6 +4,7 @@ import (
 	"github.com/SestroAI/shared/models/merchant/menu"
 	"github.com/SestroAI/shared/utils"
 	"time"
+	"github.com/SestroAI/shared/models/orders"
 )
 
 type VisitRating struct {
@@ -39,18 +40,15 @@ func NewMerchantVisit(id string) *MerchantVisit {
 }
 
 type VisitDinerSession struct {
-	ID           string   `json:"id"`
-	DinerId      string   `json:"dinerId"`
-	ItemsInCart  []string `json:"itemsInCart"`
-	ItemsOrdered []string `json:"itemsOrdered"`
-	ItemsServed  []string `json:"itemsServed"`
+	ID           string   		  `json:"id"`
+	DinerId      string   		  `json:"dinerId"`
+	Orders 		 map[string]*orders.Order   `json:"orders"`
+	List 		 []string 		  `json:"list"` 
 }
 
 func NewVisitDinerSession() *VisitDinerSession {
 	sess := VisitDinerSession{}
 	sess.ID = utils.GenerateUUID()
-	sess.ItemsOrdered = make([]string, 0)
-	sess.ItemsInCart = make([]string, 0)
-	sess.ItemsServed = make([]string, 0)
+	sess.Orders = make(map[string]*orders.Order, 0)
 	return &sess
 }
