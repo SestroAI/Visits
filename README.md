@@ -53,6 +53,9 @@ Will create a new visit if this is the first user, otherwise add to existing
 
     Output:
     Session Object
+    
+    More:
+    Allowed Status strings : "delivered", "cooking", "ordered" (default)
 
  5) POST /visits/{visit-id}/end
 
