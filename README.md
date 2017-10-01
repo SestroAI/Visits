@@ -54,4 +54,20 @@ Will create a new visit if this is the first user, otherwise add to existing
     Output:
     Session Object
 
+ 5) POST /visits/{visit-id}/end
+
+    data:
+
+    {
+        "guestRating" : {
+            "reviewerId" : "", //Current user ID
+            "value" : 5,
+            "comments" : ""
+        }
+    }
+
+    Output:
+
+    200 OK
+
 ```

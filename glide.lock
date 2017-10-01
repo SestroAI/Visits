@@ -1,5 +1,5 @@
 hash: b8e8a2826f2d9dc4fb8ab91c2cb9bff85130ee3e0c1fec950e9c9480c8be5203
-updated: 2017-09-30T12:36:01.66710048-07:00
+updated: 2017-10-01T15:45:19.087251434-07:00
 imports:
 - name: github.com/emicklei/go-restful
   version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
@@ -17,7 +17,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: d092a2b9320bac88039c2613f5495daf44c7483f
+  version: 5309d3903de2f44603521bc75c147887d54630d5
   subpackages:
   - config
   - dao
@@ -32,6 +32,11 @@ imports:
   - utils
   - utils/errors
   - utils/sestro_redis
+- name: github.com/stripe/stripe-go
+  version: 2568e0f2a1ab55fa486a10e8d6797d2dce0c70b5
+  subpackages:
+  - form
+  - orderitem
 - name: gopkg.in/dgrijalva/jwt-go.v3
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 testImports: []

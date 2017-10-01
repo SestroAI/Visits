@@ -105,7 +105,7 @@ func VerifyUserIDToken(token, googleProjectId string) (string, error) {
 	}
 
 	uid, ok := claims["user_id"].(string)
-	if !ok {
+	if !ok || uid == ""{
 		return "", errors.New("Unable to get user_id from token")
 	}
 

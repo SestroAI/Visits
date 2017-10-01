@@ -53,7 +53,7 @@ func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *res
 		//New user. Register
 		user, err = ref.RegisterFirebaseUser(uid, nil) //nil perms means default
 		if err != nil {
-			logger.ReqErrorf(req, "Unable to register the new user with ID = %s", uid)
+			logger.ReqErrorf(req, "Unable to register the new user with ID = %s and error = %s", uid, err.Error())
 			res.WriteErrorString(http.StatusInternalServerError, "Unable to register the user.")
 			return
 		}

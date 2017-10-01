@@ -1,15 +1,15 @@
 package visits
 
 import (
-	"github.com/SestroAI/shared/models/merchant/menu"
 	"github.com/SestroAI/shared/utils"
 	"time"
 	"github.com/SestroAI/shared/models/orders"
 )
 
-type VisitRating struct {
-	menu.Rating
-	VisitId string
+type Rating struct {
+	ReviewerId string `json:"reviewerId"`
+	Value int `json:"value"`
+	Comments string `json:"comments"`
 }
 
 type MerchantVisit struct {
@@ -21,6 +21,8 @@ type MerchantVisit struct {
 	Transactions []string          `json:"transactions"`
 	IsComplete   bool              `json:"isComplete"`
 	IsOpenForAll bool              `json:"isOpenForAll"`
+	Payer 		 string 		   `json:"payer"`
+	GuestRating  *Rating 		   `json:"guestRating"`
 }
 
 func NewMerchantVisit(id string) *MerchantVisit {
@@ -28,6 +30,8 @@ func NewMerchantVisit(id string) *MerchantVisit {
 		IsComplete:   false,
 		StartTime:    time.Now(),
 		IsOpenForAll: false,
+		Payer: "",
+		GuestRating:&Rating{},
 	}
 	if id == "" {
 		id = utils.GenerateUUID()
@@ -43,7 +47,9 @@ type VisitDinerSession struct {
 	ID           string   		  `json:"id"`
 	DinerId      string   		  `json:"dinerId"`
 	Orders 		 map[string]*orders.Order   `json:"orders"`
-	List 		 []string 		  `json:"list"` 
+	List 		 []string 		  `json:"list"`
+	MerchantRating *Rating		  `json:"merchantRating"`
+	Payer		 string 		  `json:"payer"`
 }
 
 func NewVisitDinerSession() *VisitDinerSession {

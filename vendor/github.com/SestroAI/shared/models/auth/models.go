@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/SestroAI/shared/config"
+	"github.com/stripe/stripe-go"
 )
 
 /*
@@ -45,18 +46,20 @@ type FirebaseUser struct {
 
 type User struct {
 	FirebaseUser    `mapstructure:",squash"`
-	Roles           []*Role              `json:"roles",mapstructure:"roles,squash"`
-	CustomerProfile *UserCustomerProfile `json:"customerProfile",mapstructure:",squash"`
-	MerchantProfile *UserMerchantProfile `json:"userMerchantProfile",mapstructure:",squash"`
+	Roles           map[string]*Role     `json:"roles",mapstructure:"roles,squash"`
+	CustomerProfile *UserCustomerProfile `json:"customerProfile",mapstructure:"customerProfile,squash"`
+	MerchantProfiles map[string]*UserMerchantProfile `json:"merchantProfiles",mapstructure:"merchantProfiles,squash"`
 }
 
 type UserCustomerProfile struct {
-	Visits         map[string]bool `json:"visits",mapstructure:"visits"`
+	Visits         map[string]bool `json:"visits",mapstructure:"visits,squash"`
 	OngoingVisitId string          `json:"ongoingVisitId",mapstructure:"ongoingVisitId"`
+	StripeCustomer *stripe.Customer `json:"stripeCustomer",mapstructure:"stripeCustomer,squash"`
 }
 
 type UserMerchantProfile struct {
-	associatedMerchantIds []string `json:"associatedMerchantIds",mapstructure:"associatedMerchantInfo"`
+	IsMerchant bool `json:"isMerchant",mapstructure:"isMerchant"`
+	AssociatedMerchantId string `json:"associatedMerchantId",mapstructure:"associatedMerchantId"`
 }
 
 type Role struct {

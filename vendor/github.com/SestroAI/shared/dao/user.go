@@ -82,8 +82,21 @@ func (ref *UserDao) RegisterFirebaseUser(userId string, roles []*auth.Role) (*au
 	}
 
 	user := auth.User{FirebaseUser: *firebaseUser}
-	user.Roles = roles
-	user.CustomerProfile = &auth.UserCustomerProfile{}
+
+	for _, role := range roles {
+		user.Roles[role.Name] = role
+	}
+
+	//Initialize Customer Profile
+	user.CustomerProfile = &auth.UserCustomerProfile{
+		Visits:map[string]bool{},
+		OngoingVisitId:"",
+		StripeCustomer:nil,  //Is created when user adds payment source
+	}
+
+	//Initialise merchant profile
+	user.MerchantProfiles = make(map[string]*auth.UserMerchantProfile, 0)
+
 	err = ref.SaveUser(user.ID, &user)
 	if err != nil {
 		logger.Infof("Unable to save user with ID = %s", user.ID)

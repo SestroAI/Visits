@@ -41,6 +41,10 @@ func (u VisitResource) Register(container *restful.Container, prefix string) {
 			Param(ws.PathParameter("visit_id", "Merchant Visit ID").DataType("string")).
 			Writes(visits.MerchantVisit{}))
 
+	ws.Route(
+		ws.POST("/{visit_id}/end").To(u.EndVisit).
+			Param(ws.PathParameter("visit_id", "Merchant Visit ID").DataType("string")).
+			Reads(EndVisitInput{}))
 	container.Add(ws)
 }
 
@@ -152,5 +156,42 @@ func (u VisitResource) CreateVisit(req *restful.Request, res *restful.Response) 
 			VisitId:        visit.ID,
 			DinerSessionId: dinerSessionId,
 		})
+	return
+}
+
+type EndVisitInput struct {
+	visits.Rating `json:"guestRating"`
+}
+
+func (u VisitResource) EndVisit(req *restful.Request, res *restful.Response) {
+	token, _ := req.Attribute(config.RequestToken).(string)
+//	user, _ := req.Attribute(config.RequestUser).(*auth.User)
+
+	ref := dao.NewVisitDao(token)
+
+	input := EndVisitInput{}
+	err := req.ReadEntity(&input)
+	if err != nil {
+		res.WriteErrorString(http.StatusBadRequest, "Wrong data input")
+		return
+	}
+
+	visitId := req.PathParameter("visit_id")
+
+	visit, err := ref.GetVisit(visitId)
+	if err != nil {
+		res.WriteErrorString(http.StatusInternalServerError, "Unable to get visit ID = " + visitId)
+		return
+	}
+
+	visit.GuestRating = &input.Rating
+	err = ref.EndVisit(visit)
+	if err != nil {
+		logger.ReqErrorf(req, "unable to end visit ID = %s with error = %s", visit.ID, err.Error())
+		res.WriteErrorString(http.StatusInternalServerError, "Cannot end the visit right now")
+		return
+	}
+
+	res.WriteHeader(http.StatusOK)
 	return
 }

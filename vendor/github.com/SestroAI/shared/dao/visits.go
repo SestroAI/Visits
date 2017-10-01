@@ -7,6 +7,7 @@ import (
 	"github.com/SestroAI/shared/models/auth"
 	"github.com/SestroAI/shared/models/visits"
 	serrors "github.com/SestroAI/shared/utils/errors"
+	"time"
 )
 
 const (
@@ -48,6 +49,7 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 
 	visitorSession := visits.NewVisitDinerSession()
 	visitorSession.DinerId = diner.ID
+	visitorSession.Payer = diner.ID
 	err = ref.SaveVisitSession(visitorSession.ID, visitorSession)
 	if err != nil {
 		return nil, err
@@ -71,6 +73,38 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 	}
 
 	return visit, nil
+}
+
+func (ref *VisitDao) EndVisit(visit *visits.MerchantVisit) (error) {
+	visit.IsComplete = true
+	visit.EndTime = time.Now()
+
+	err := ref.SaveVisit(visit.ID, visit)
+	if err != nil {
+		return err
+	}
+
+	restaurantDao := NewRestaurantDao(ref.Token)
+	err = restaurantDao.UpdateTableOngoingVisit(visit.TableId, nil)
+	if err != nil {
+		return err
+	}
+
+	/*
+	TODO: This token might not work here. It is typically restaurant worker's token
+	 */
+	userDao := NewUserDao(ref.Token)
+
+	for dinerId, _ := range visit.Diners {
+		err = userDao.UpdateDinerOngoingVisit(dinerId, nil)
+		if err != nil {
+			logger.Errorf("Unable to update ongoing visit for user ID = %s and err = %s", dinerId, err.Error())
+			/*
+			TODO: Handle this error gracefully
+			 */
+		}
+	}
+	return nil
 }
 
 func (ref *VisitDao) SaveVisit(id string, visit *visits.MerchantVisit) error {
