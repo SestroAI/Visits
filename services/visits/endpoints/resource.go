@@ -12,6 +12,7 @@ import (
 	"github.com/SestroAI/shared/routing"
 	serrors "github.com/SestroAI/shared/utils/errors"
 	"net/http"
+	"github.com/SestroAI/Visits/controller/events"
 )
 
 type VisitResource struct {
@@ -165,7 +166,7 @@ type EndVisitInput struct {
 
 func (u VisitResource) EndVisit(req *restful.Request, res *restful.Response) {
 	token, _ := req.Attribute(config.RequestToken).(string)
-//	user, _ := req.Attribute(config.RequestUser).(*auth.User)
+	user, _ := req.Attribute(config.RequestUser).(*auth.User)
 
 	ref := dao.NewVisitDao(token)
 
@@ -190,6 +191,15 @@ func (u VisitResource) EndVisit(req *restful.Request, res *restful.Response) {
 		logger.ReqErrorf(req, "unable to end visit ID = %s with error = %s", visit.ID, err.Error())
 		res.WriteErrorString(http.StatusInternalServerError, "Cannot end the visit right now")
 		return
+	}
+
+	err = events.SendEndVisitEvent(user.ID, visit)
+	if err != nil {
+		logger.ReqErrorf(req, "Unable to send visit end for visit ID = %s message with err = %s",
+			visit.ID, err.Error())
+		/*
+		TODO: Dont know what to do here!
+		 */
 	}
 
 	res.WriteHeader(http.StatusOK)
