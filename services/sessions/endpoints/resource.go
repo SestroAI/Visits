@@ -96,6 +96,10 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 		order := orders.NewOrder()
 		order.ItemId = item
 		//Order status is default which is "delivered"
+		if session.Orders == nil {
+			//Initialize map if empty
+			session.Orders = make(map[string]*orders.Order, 0)
+		}
 		session.Orders[order.ID] = order
 	}
 
