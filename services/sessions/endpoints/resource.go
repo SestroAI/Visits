@@ -94,7 +94,9 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 		TODO: Check if item is valid for this restaurant and session and available
 		 */
 		order := orders.NewOrder()
+		order.SessionID = sessionId
 		order.ItemId = item
+		order.Status = "ordered"
 		//Order status is default which is "delivered"
 		if session.Orders == nil {
 			//Initialize map if empty

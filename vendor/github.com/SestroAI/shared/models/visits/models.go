@@ -47,8 +47,8 @@ func NewMerchantVisit(id string) *MerchantVisit {
 type VisitDinerSession struct {
 	ID           string   		  `json:"id"`
 	DinerId      string   		  `json:"dinerId"`
-	Orders 		 map[string]*orders.Order   `json:"orders"`
-	List 		 []string 		  `json:"list"`
+	Orders 		 map[string]*orders.Order   `json:"orders",mapstructure:"orders,squash"`
+	List 		 []string 		  `json:"list",mapstructure:",squash"`
 	MerchantRating *Rating		  `json:"merchantRating"`
 	Payer		 string 		  `json:"payer"`
 }
