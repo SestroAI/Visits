@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/SestroAI/Visits/services/visits/endpoints"
+	sessionEP "github.com/SestroAI/Visits/services/sessions/endpoints"
 	"github.com/SestroAI/shared/routing"
 	"github.com/SestroAI/shared/utils"
 	"os"
@@ -19,6 +20,9 @@ func main() {
 
 	u := endpoints.VisitResource{}
 	u.Register(wsContainer, utils.GetServicePrefix())
+
+	u2 := sessionEP.SessionResource{}
+	u2.Register(wsContainer, utils.GetServicePrefix())
 
 	wsContainer.Filter(routing.LoggingFilter)
 

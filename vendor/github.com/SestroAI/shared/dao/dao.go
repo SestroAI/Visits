@@ -10,12 +10,14 @@ import (
 	"github.com/SestroAI/shared/config"
 	"io/ioutil"
 	"strconv"
+	"github.com/SestroAI/shared/firebase/service"
 )
 
 type Dao struct {
 	APIKey      string
 	Token       string
 	FireBaseURL string
+	IsService bool
 }
 
 func NewDao(token string) *Dao {
@@ -28,16 +30,21 @@ func NewDao(token string) *Dao {
 }
 
 func (ref *Dao) PrepareURL(url string) string {
-	if ref.Token != "" {
-		url += "?auth=" + ref.Token
+	access_token := ""
+	var err error
+	if ref.IsService {
+		access_token, err = service.GetServiceFirebaseAccessKey()
+		if err != nil {
+			logger.Errorf("Unable to get access token for firebase with err = %s. " +
+				"Continuing with empty access_token", err.Error())
+		}
+		url += "?access_token=" + access_token
+	} else {
+		if ref.Token != "" {
+			url += "?auth=" + ref.Token
+		}
 	}
 	return url
-}
-
-func (ref *Dao) PrepareRequest(req *http.Request) {
-	q := req.URL.Query()
-	q.Add("auth", ref.Token)
-	req.URL.RawQuery = q.Encode()
 }
 
 func (ref *Dao) GetObjectById(id string, objectPath string) (interface{}, error) {

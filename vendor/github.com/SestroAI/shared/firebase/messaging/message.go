@@ -2,13 +2,30 @@ package messaging
 
 import (
 	"cloud.google.com/go/pubsub"
+	"google.golang.org/api/option"
 	"context"
 	"github.com/SestroAI/shared/config"
 	"time"
+	"bytes"
+	"encoding/gob"
 )
 
 func GetPubSubClient() (*pubsub.Client, error) {
-	return pubsub.NewClient(context.Background(), config.GetGoogleProjectID())
+	return pubsub.NewClient(
+		context.Background(),
+		config.GetGoogleProjectID(),
+		option.WithCredentialsFile(config.ServiceAccountKeyPath),
+	)
+}
+
+func getBytes(data interface{}) ([]byte, error){
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(data)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 func sendPubsubMessage(topicName string, data interface{}) error {
@@ -18,8 +35,12 @@ func sendPubsubMessage(topicName string, data interface{}) error {
 	//Create topic if doesn't exist
 	topic, _ := client.CreateTopic(ctx, topicName)
 
+	messageData, err := getBytes(data)
+	if err != nil {
+		return err
+	}
 	message := &pubsub.Message{
-		Data:[]byte(data),
+		Data:messageData,
 	}
 
 	_, err = topic.Publish(ctx, message).Get(ctx)

@@ -46,6 +46,7 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 
 	visit := visits.NewMerchantVisit("")
 	visit.TableId = tableId
+	visit.MerchantId = table.MerchantId
 
 	visitorSession := visits.NewVisitDinerSession()
 	visitorSession.DinerId = diner.ID

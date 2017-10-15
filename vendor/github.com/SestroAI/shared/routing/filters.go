@@ -36,7 +36,8 @@ func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *res
 	token, err := GetJWTFromRequest(req)
 	if err != nil {
 		//User is not authenticated
-		chain.ProcessFilter(req, res)
+		//chain.ProcessFilter(req, res)
+		res.WriteErrorString(http.StatusUnauthorized, "No token found")
 		return
 	}
 
@@ -47,16 +48,16 @@ func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *res
 		return
 	}
 
+	type TokenValidOutput struct {
+		RegistrationRequired bool `json:"registrationRequired"`
+	}
+
 	var ref = dao.NewUserDao(token)
 	user, err := ref.GetUser(uid)
 	if err != nil {
-		//New user. Register
-		user, err = ref.RegisterFirebaseUser(uid, nil) //nil perms means default
-		if err != nil {
-			logger.ReqErrorf(req, "Unable to register the new user with ID = %s and error = %s", uid, err.Error())
-			res.WriteErrorString(http.StatusInternalServerError, "Unable to register the user.")
-			return
-		}
+		//New user. Register First
+		res.WriteHeaderAndEntity(http.StatusNotFound, TokenValidOutput{true})
+		return
 	}
 
 	req.SetAttribute(config.RequestUser, user)

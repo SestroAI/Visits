@@ -1,6 +1,9 @@
 package merchant
 
-import "time"
+import (
+	"time"
+	"github.com/SestroAI/shared/models/merchant/menu"
+)
 
 type Merchant struct {
 	ID       string `json:"id"`
@@ -9,8 +12,9 @@ type Merchant struct {
 	Cuisine  string `json:"cuisine"` //Cuisine ID
 	URL      string `json:"url"`
 	YelpLink string `json:"yelpLink"`
-	MenuID   string `json:"menuId"`
+	Menu   menu.Menu `json:"menu",mapstructure:"menu,squash"`
 	isPaymentSetup bool `json:"isPaymentSetup"`
+	Tables 	map[string]bool `json:"tables"`
 }
 
 type MerchantStripeInfo struct {

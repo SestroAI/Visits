@@ -12,6 +12,7 @@ import (
 
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"github.com/SestroAI/shared/config"
+	"github.com/SestroAI/shared/firebase/service"
 )
 
 /*
@@ -42,20 +43,28 @@ Sample Firebase standard ID Token
 }
 */
 
-func VerifyToken(idToken, clientCertURL, aud, iss , pkId string) (map[string]interface{}, error) {
+func VerifyToken(idToken, clientCertURL, aud, pkId string) (map[string]interface{}, error) {
 	/*
 		Returns User ID from a validated JWT token. Returns error if token is not valid/expired
 	*/
-	keys, err := fetchPublicKeys(clientCertURL)
-
-	if err != nil {
-		return nil, err
-	}
-
 	parsedToken, err := jwt.Parse(idToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
+
+		if clientCertURL == "" {
+			claims, ok := token.Claims.(jwt.StandardClaims)
+			if !ok {
+				return nil, fmt.Errorf("Invalid Claims")
+			}
+			clientCertURL = GetClientCertUrl(claims.Issuer)
+		}
+
+		keys, err := fetchPublicKeys(clientCertURL)
+		if err != nil {
+			return nil, err
+		}
+
 		kid, ok := token.Header["kid"].(string)
 		if !ok {
 			kid = pkId
@@ -76,32 +85,22 @@ func VerifyToken(idToken, clientCertURL, aud, iss , pkId string) (map[string]int
 		return nil, err
 	}
 
-	errMessage := ""
-
 	claims := parsedToken.Claims.(jwt.MapClaims)
 
 	if claims["aud"].(string) != aud {
-		errMessage = "Firebase Auth ID token has incorrect 'aud' claim: " + claims["aud"].(string)
-	} else if claims["iss"].(string) != iss {
-		errMessage = "Firebase Auth ID token has incorrect 'iss' claim"
-	} else if claims["sub"].(string) == "" || len(claims["sub"].(string)) > 128 {
-		errMessage = "Firebase Auth ID token has invalid 'sub' claim"
-	}
-	if errMessage != "" {
-		return nil, errors.New(errMessage)
+		return nil, errors.New("ID token has incorrect 'aud' claim: " + claims["aud"].(string))
 	}
 
 	return claims, nil
 }
 
 func VerifyUserIDToken(token, googleProjectId string) (string, error) {
-	iss := "https://securetoken.google.com/"+ googleProjectId
 	claims, err := VerifyToken(token,
 		config.ClientCertURL,
 		googleProjectId,
-		iss, "")
+		"")
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	uid, ok := claims["user_id"].(string)
@@ -125,4 +124,17 @@ func fetchPublicKeys(clientCertURL string) (map[string]*json.RawMessage, error) 
 	err = decoder.Decode(&objmap)
 
 	return objmap, err
+}
+
+func GetClientCertUrl(iss string) string {
+	switch iss{
+	case "https://securetoken.google.com/"+ config.GetGoogleProjectID():
+		return config.ClientCertURL
+	default:
+		url, err := service.GetServiceAccountPublicCertificateURL(iss)
+		if err != nil {
+			return ""
+		}
+		return url
+	}
 }

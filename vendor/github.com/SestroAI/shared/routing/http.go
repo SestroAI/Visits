@@ -9,7 +9,7 @@ import (
 )
 
 var defaultAllowedDomains = []string{
-	"localhost:8080",
+	"http://localhost:8080",
 	"https://sestro.io",
 	"https://stage.sestro.io",
 	"https://dashboard.sestro.io",
@@ -17,10 +17,7 @@ var defaultAllowedDomains = []string{
 }
 
 func GetCorsConfig(allowedDomains []string, wsContainer *restful.Container) restful.CrossOriginResourceSharing {
-
-	if len(allowedDomains) == 0 {
-		allowedDomains = defaultAllowedDomains
-	}
+	allowedDomains = append(allowedDomains, defaultAllowedDomains...)
 
 	cors := restful.CrossOriginResourceSharing{
 		ExposeHeaders:  []string{"X-Set-Authorization"},

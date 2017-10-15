@@ -17,7 +17,16 @@ var (
 	AppHost     = os.Getenv("APP_HOST")
 	AppPort, _  = strconv.Atoi(os.Getenv("APP_HOST_PORT"))
 	ServiceName = os.Getenv("SERVICE_NAME")
-	ServiceAccountKeyPath = os.Getenv("SERVICE_ACCOUNT_KEY_PATH")
+//	ServiceAccountKeyPath = os.Getenv("SERVICE_ACCOUNT_KEY_PATH")
+	ServiceAccountKeyPath = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
+	AuthorizedClientList = os.Getenv("AUTHORIZED_CLIENT_LIST")
+
+	FirebaseAdminAccessScopes = []string{
+		"https://www.googleapis.com/auth/firebase",
+		"https://www.googleapis.com/auth/firebase.readonly",
+		"https://www.googleapis.com/auth/userinfo.email",
+	}
 )
 
 const (

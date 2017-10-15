@@ -13,10 +13,10 @@ import (
 	serrors "github.com/SestroAI/shared/utils/errors"
 )
 
-type VisitResource struct {
+type SessionResource struct {
 }
 
-func (u VisitResource) Register(container *restful.Container, prefix string) {
+func (u SessionResource) Register(container *restful.Container, prefix string) {
 	ws := new(restful.WebService)
 
 	ws.Path(prefix + "/sessions").
@@ -50,7 +50,7 @@ func (u VisitResource) Register(container *restful.Container, prefix string) {
 	container.Add(ws)
 }
 
-func (u VisitResource) GetSession(req *restful.Request, res *restful.Response) {
+func (u SessionResource) GetSession(req *restful.Request, res *restful.Response) {
 	token, _ := req.Attribute(config.RequestToken).(string)
 
 	ref := dao.NewVisitDao(token)
@@ -69,7 +69,7 @@ type AddOrderInput struct {
 	Items []string `json:"items"`
 }
 
-func (u VisitResource) AddOrder(req *restful.Request, res *restful.Response) {
+func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 	token, _ := req.Attribute(config.RequestToken).(string)
 
 	ref := dao.NewVisitDao(token)
@@ -111,7 +111,7 @@ func (u VisitResource) AddOrder(req *restful.Request, res *restful.Response) {
 	return
 }
 
-func (u VisitResource) UpdateOrderStatus(req *restful.Request, res *restful.Response) {
+func (u SessionResource) UpdateOrderStatus(req *restful.Request, res *restful.Response) {
 	token, _ := req.Attribute(config.RequestToken).(string)
 
 	ref := dao.NewVisitDao(token)

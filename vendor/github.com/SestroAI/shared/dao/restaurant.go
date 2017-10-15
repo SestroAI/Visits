@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/SestroAI/shared/models/merchant"
 	"github.com/SestroAI/shared/models/visits"
+	"github.com/SestroAI/shared/models/merchant/menu"
 )
 
 type RestaurantDao struct {
@@ -83,4 +84,16 @@ func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.
 		return err
 	}
 	return nil
+}
+
+func (ref *RestaurantDao) GetMenuItemById(id string) (*menu.Item, error) {
+	object, err := ref.GetObjectById(id, TABLE_PATH)
+	if err != nil || object == nil {
+		return nil, errors.New("Unable to get item with id = " + id)
+	}
+
+	item := menu.Item{}
+	err = MapToStruct(object.(map[string]interface{}), &item)
+
+	return &item, err
 }

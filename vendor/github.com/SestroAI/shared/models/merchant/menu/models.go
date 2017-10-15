@@ -3,31 +3,32 @@ package menu
 import "time"
 
 type Menu struct {
-	MenuMeta `json:"meta"`
-	ID       string
-	Sections []*Item `json:"items"`
+	Meta 	 MenuMeta `json:"meta",mapstructure:"meta,squash"`
+	ID       string	`json:"id"`
+	Sections map[string]*Section `json:"sections",mapstructure:",squash"`
+	Items	 map[string]*Item `json:"items",mapstructure:",squash"`
 }
 
 type MenuMeta struct {
-	Language     string
-	LanguageCode string
-	LastUpdated  string `json:"lastUpdated"`
+	Url 		 string `json:"url"`
+	Language     string	`json:"language"`
+	LanguageCode string `json:"languageCode",mapstructure:"languageCode"`
+	LastUpdated  string `json:"lastUpdated",mapstructure:"lastUpdated"`
 }
 
 type Section struct {
 	//e.g. Appetizers, Desserts etc
-	ID          string
-	Name        string `json:"name"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
 	Category    string `json:"category"`
 	Description string `json:"description"`
-	Items       []Item `json:"items"`
-	ItemMeta    `json:"meta"`
+	Meta 		ItemMeta    `json:"meta",mapstructure:",squash"`
 }
 
 type ItemMeta struct {
 	//All the fields to make menu smart will come here
-	IsOutOfStock bool      `json:"isOutOfStock"`
-	Tags         []ItemTag `json:"tags"`
+	IsOutOfStock bool      `json:"isOutOfStock",mapstructure:"isOutOfStock"`
+	Tags         []string `json:"tags"`
 	Ingredients  []string  `json:"ingredients"`
 }
 
@@ -37,14 +38,14 @@ type ItemTag struct {
 }
 
 type Item struct {
-	ID            string
+	ID            string	`json:"id"`
 	Price         float32  `json:"price"`
 	Currency      string   `json:"currency"`
 	AverageRating float32  `json:"averageRating"`
 	Name          string   `json:"name"`
 	Description   string   `json:"description"`
 	Images        []string `json:"images"`
-	ItemMeta      `json:"meta"`
+	Meta 		  ItemMeta `json:"meta",mapstructure:",squash"`
 }
 
 type Rating struct {

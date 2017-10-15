@@ -82,7 +82,7 @@ func (ref *UserDao) RegisterFirebaseUser(userId string, roles []*auth.Role) (*au
 	}
 
 	user := auth.User{FirebaseUser: *firebaseUser}
-
+	user.Roles = make(map[string]*auth.Role, 0)
 	for _, role := range roles {
 		user.Roles[role.Name] = role
 	}

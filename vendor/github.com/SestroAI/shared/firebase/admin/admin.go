@@ -20,6 +20,16 @@ type ServiceAccount struct {
 	ClientCertURL string `json:"client_x509_cert_url"`
 	ProjectID string `json:"project_id"`
 	PrivateKeyId string `json:"private_key_id"`
+	PrivateKey string `json:"private_key"`
+}
+
+func GetJsonKey() ([]byte, error) {
+	if config.ServiceAccountKeyPath == "" {
+		return nil, errors.New("No Key file found")
+	}
+	body, err := ioutil.ReadFile(config.ServiceAccountKeyPath)
+
+	return body, err
 }
 
 func GetServiceAccount() (*ServiceAccount, error) {

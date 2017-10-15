@@ -23,6 +23,7 @@ type MerchantVisit struct {
 	IsOpenForAll bool              `json:"isOpenForAll"`
 	Payer 		 string 		   `json:"payer"`
 	GuestRating  *Rating 		   `json:"guestRating"`
+	MerchantId 	 string 		   `json:"merchantId"`
 }
 
 func NewMerchantVisit(id string) *MerchantVisit {
