@@ -49,7 +49,7 @@ type VisitDinerSession struct {
 	DinerId      string   		  `json:"dinerId"`
 	Orders 		 map[string]*orders.Order   `json:"orders",mapstructure:"orders,squash"`
 	List 		 []string 		  `json:"list",mapstructure:",squash"`
-	MerchantRating *Rating		  `json:"merchantRating"`
+	MerchantRating *Rating		  `json:"merchantRating",mapstructure:"merchantRating,squash"`
 	Payer		 string 		  `json:"payer"`
 }
 

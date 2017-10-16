@@ -125,23 +125,23 @@ func (ref *VisitDao) GetVisit(id string) (*visits.MerchantVisit, error) {
 }
 
 func (ref *VisitDao) SaveVisitSession(id string, visitSess *visits.VisitDinerSession) error {
-	err := ref.SaveObjectById(id, *visitSess, VISIT_SESSION_PATH)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ref.SaveObjectById(id, *visitSess, VISIT_SESSION_PATH)
 }
 
 func (ref *VisitDao) GetVisitSession(id string) (*visits.VisitDinerSession, error) {
-	object, _ := ref.GetObjectById(id, VISIT_SESSION_PATH)
-	if object == nil {
+	object, err := ref.GetObjectById(id, VISIT_SESSION_PATH)
+	if object == nil{
 		return nil, errors.New("Unable to get Visit Session with id = " + id)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	visitSess := visits.VisitDinerSession{}
-	MapToStruct(object.(map[string]interface{}), &visitSess)
+	err = MapToStruct(object.(map[string]interface{}), &visitSess)
+	if err != nil {
+		return nil, err
+	}
 
 	return &visitSess, nil
 }

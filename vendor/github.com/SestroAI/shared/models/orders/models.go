@@ -14,10 +14,11 @@ var AllowedOrderStatus = []string{
 type Order struct {
 	ID string `json:"id"`
 	SessionID string `json:"sessionId"`
-	OrderedAt time.Time `json:"orderedAt"`
-	ServedAt time.Time `json:"deliveredAt"`
+	OrderedAt time.Time `json:"orderedAt",mapstructure:"orderedAt,squash"`
+	DeliveredAt time.Time `json:"deliveredAt",mapstructure:"deliveredAt,squash"`
 	ItemId string `json:"itemId"`
 	Status string `json:"status"`
+	Comments string `json:"comments"`
 }
 
 func NewOrder() *Order {

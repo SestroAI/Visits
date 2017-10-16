@@ -65,8 +65,14 @@ func (u SessionResource) GetSession(req *restful.Request, res *restful.Response)
 	res.WriteHeaderAndEntity(http.StatusOK, session)
 }
 
+type AddOrderInputItem struct {
+	ItemId string `json:"itemId"`
+	Quantity int `json:"quantity"`
+	Comments string `json:"comments"`
+}
+
 type AddOrderInput struct {
-	Items []string `json:"items"`
+	Items []*AddOrderInputItem `json:"items"`
 }
 
 func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
@@ -77,8 +83,14 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 
 	session, err := ref.GetVisitSession(sessionId)
 	if err != nil {
+		logger.ReqErrorf(req, "Unable to get session with error = %s", err.Error())
 		res.WriteErrorString(http.StatusNotFound, "No Session with ID = " + sessionId + " found")
 		return
+	}
+
+	if session.Orders == nil {
+		//Initialize map if empty
+		session.Orders = make(map[string]*orders.Order, 0)
 	}
 
 	var data AddOrderInput
@@ -93,16 +105,15 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 		/*
 		TODO: Check if item is valid for this restaurant and session and available
 		 */
-		order := orders.NewOrder()
-		order.SessionID = sessionId
-		order.ItemId = item
-		order.Status = "ordered"
-		//Order status is default which is "delivered"
-		if session.Orders == nil {
-			//Initialize map if empty
-			session.Orders = make(map[string]*orders.Order, 0)
+		for i:=0; i<item.Quantity; i++ {
+			order := orders.NewOrder()
+			order.SessionID = sessionId
+			order.ItemId = item.ItemId
+			order.Status = "ordered"
+			order.Comments = item.Comments
+			//Order status is default which is "delivered"
+			session.Orders[order.ID] = order
 		}
-		session.Orders[order.ID] = order
 	}
 
 	err = ref.SaveVisitSession(session.ID, session)
