@@ -40,13 +40,19 @@ Will create a new visit if this is the first user, otherwise add to existing
     data:
 
     {
-        "items" : [<item_id_1>, <item_id_2>]
+        "items" : [
+            {
+               "itemid" : <item_id_1>,
+               "quantity" : 1,
+               "comments" : "Spicy and hot"
+            }
+        ]
     }
 
     Output:
     Session Object
 
-4) PUT /sessions/{session_id}/orders/{order_id}/{status}
+4) PUT /sessions/{session_id}/orders/{order_id}/status/{status}
 
     data :
     {}
