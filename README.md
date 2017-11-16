@@ -52,7 +52,7 @@ Will create a new visit if this is the first user, otherwise add to existing
     Output:
     Session Object
 
-4) PUT /sessions/{session_id}/orders/{order_id}/{status}
+4) PUT /sessions/{session_id}/orders/{order_id}/status/{status}
 
     data :
     {}
