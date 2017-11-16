@@ -41,10 +41,11 @@ func (u SessionResource) Register(container *restful.Container, prefix string) {
 			Writes(visits.VisitDinerSession{}))
 
 	ws.Route(
-		ws.PUT("/{session_id}/order/{order_id}/status/{status}").To(u.UpdateOrderStatus).
+		ws.PUT("/{session_id}/orders/{order_id}/status/{status}").To(u.UpdateOrderStatus).
 			Doc("Update Order Status").
 			Param(ws.PathParameter("session_id", "User Session ID").DataType("string")).
 			Param(ws.PathParameter("order_id", "Order ID").DataType("string")).
+			Param(ws.PathParameter("status", "Order Status").DataType("string")).
 			Writes(visits.VisitDinerSession{}))
 
 	container.Add(ws)
@@ -101,10 +102,16 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 		return
 	}
 
+	merchantRef := dao.NewRestaurantDao(token)
+
 	for _, item := range data.Items {
-		/*
-		TODO: Check if item is valid for this restaurant and session and available
-		 */
+		_, err := merchantRef.GetMenuItemById(item.ItemId)
+		if err != nil {
+			//Invalid Item Found
+			res.WriteErrorString(http.StatusBadRequest, "Invalid Item Id " + item.ItemId + " for this restaurant")
+			return
+		}
+
 		for i:=0; i<item.Quantity; i++ {
 			order := orders.NewOrder()
 			order.SessionID = sessionId
@@ -176,7 +183,6 @@ func (u SessionResource) UpdateOrderStatus(req *restful.Request, res *restful.Re
 		res.WriteErrorString(http.StatusInternalServerError, "Unable to save the session")
 		return
 	}
-	res.WriteHeader(http.StatusOK)
-	res.WriteEntity(session)
+	res.WriteHeaderAndEntity(http.StatusOK, session)
 	return
 }
