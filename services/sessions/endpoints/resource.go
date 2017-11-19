@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"github.com/SestroAI/shared/models/orders"
 	serrors "github.com/SestroAI/shared/utils/errors"
+	"time"
 )
 
 type SessionResource struct {
@@ -174,6 +175,11 @@ func (u SessionResource) UpdateOrderStatus(req *restful.Request, res *restful.Re
 	}
 
 	currOrder.Status = req.PathParameter("status")
+	if currOrder.Status == "delivered" {
+		currOrder.DeliveredAt = time.Now()
+
+	}
+
 	session.Orders[currOrder.ID] = currOrder
 
 	err = ref.SaveVisitSession(session.ID, session)
