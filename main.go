@@ -24,17 +24,17 @@ func main() {
 	u2 := sessionEP.SessionResource{}
 	u2.Register(wsContainer, utils.GetServicePrefix())
 
+	cors := routing.GetCorsConfig([]string{}, wsContainer)
+
+	wsContainer.Filter(cors.Filter)
+	wsContainer.Filter(wsContainer.OPTIONSFilter)
+
 	wsContainer.Filter(routing.LoggingFilter)
 
 	wsContainer.Filter(routing.AuthorisationFilter)
 	wsContainer.Filter(routing.LoggedInFilter)
 
-	cors := routing.GetCorsConfig([]string{}, wsContainer)
-
-	wsContainer.Filter(cors.Filter)
 	routing.AddSwaggerConfig(wsContainer)
-
-	wsContainer.Filter(wsContainer.OPTIONSFilter)
 
 	logger.Infof("Sestro Visit API Server: Start listening on port 8080")
 	server := &http.Server{Addr: ":8080", Handler: wsContainer}
