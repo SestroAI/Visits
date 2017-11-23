@@ -7,6 +7,7 @@ import (
 
 	"github.com/SestroAI/shared/config"
 	"strconv"
+	"os"
 )
 
 func GenerateUUID() string {
@@ -16,6 +17,14 @@ func GenerateUUID() string {
 
 func randomInRange(low, hi int) int {
 	return low + rand.Intn(hi-low)
+}
+
+func GetEnv(env string, defaultValue string) string {
+	val := os.Getenv(env)
+	if len(val) == 0 {
+		return defaultValue
+	}
+	return val
 }
 
 func GenerateIDFromName(name string, addRandom bool) string {

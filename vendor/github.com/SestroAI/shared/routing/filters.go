@@ -22,14 +22,18 @@ var (
 )
 
 func GetJWTFromRequest(req *restful.Request) (string, error) {
-	header := req.Request.Header.Get("Authorization")
-	if header == "" {
-		header = req.Request.URL.Query().Get("authorization")
+	token := req.Request.Header.Get("Authorization")
+	if token == "" {
+		token = req.Request.URL.Query().Get("authorization")
 	}
-	if header == "" {
-		return "", ErrNotAuthenticated
+	if token == "" {
+		//Check for query param
+		token = req.QueryParameter("auth")
+		if token == ""{
+			return "", ErrNotAuthenticated
+		}
 	}
-	return strings.TrimPrefix(header, "Bearer "), nil
+	return strings.TrimPrefix(token, "Bearer "), nil
 }
 
 func AuthorisationFilter(req *restful.Request, res *restful.Response, chain *restful.FilterChain) {

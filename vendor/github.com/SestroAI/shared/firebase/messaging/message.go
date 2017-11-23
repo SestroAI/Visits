@@ -6,8 +6,7 @@ import (
 	"context"
 	"github.com/SestroAI/shared/config"
 	"time"
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 )
 
 func GetPubSubClient() (*pubsub.Client, error) {
@@ -19,6 +18,7 @@ func GetPubSubClient() (*pubsub.Client, error) {
 }
 
 func getBytes(data interface{}) ([]byte, error){
+	/*
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	err := enc.Encode(data)
@@ -26,6 +26,9 @@ func getBytes(data interface{}) ([]byte, error){
 		return nil, err
 	}
 	return buf.Bytes(), nil
+	*/
+
+	return json.Marshal(data)
 }
 
 func sendPubsubMessage(topicName string, data interface{}) error {

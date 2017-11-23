@@ -47,6 +47,34 @@ func (ref *Dao) PrepareURL(url string) string {
 	return url
 }
 
+func (ref *Dao) GetByFirebaseUrlPath(path string) (interface{}, error) {
+	url := ref.FireBaseURL + path
+	url = ref.PrepareURL(url)
+	res, err := http.Get(url)
+	if err != nil {
+		logger.Errorf("Unable to get object at url %s from firebase with err = %s", url, err.Error())
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New("Unable to get object at url " + url + " with firebase response status " + res.Status)
+	}
+
+	var objectInstance interface{}
+
+	err = json.NewDecoder(res.Body).Decode(&objectInstance)
+	if err != nil {
+		logger.Errorf("Unable to get object with path = %s and Error: %s", path, err.Error())
+		return nil, err
+	}
+
+	return objectInstance, nil
+}
+
 func (ref *Dao) GetObjectById(id string, objectPath string) (interface{}, error) {
 	var objectInstance interface{}
 	url := ref.FireBaseURL + objectPath + "/" + id + ".json"

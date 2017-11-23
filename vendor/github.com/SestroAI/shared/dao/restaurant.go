@@ -5,6 +5,8 @@ import (
 	"github.com/SestroAI/shared/models/merchant"
 	"github.com/SestroAI/shared/models/visits"
 	"github.com/SestroAI/shared/models/merchant/menu"
+	"fmt"
+	"github.com/SestroAI/shared/logger"
 )
 
 type RestaurantDao struct {
@@ -96,4 +98,33 @@ func (ref *RestaurantDao) GetMenuItemById(id string) (*menu.Item, error) {
 	err = MapToStruct(object.(map[string]interface{}), &item)
 
 	return &item, err
+}
+
+func (ref *RestaurantDao) GetAllVisitsByTableId(tableId string) ([]*visits.MerchantVisit, error) {
+	path := "visits.json?orderBy=\"tableId\"&startAt=\"%s\"&endAt=\"%s\""
+	path = fmt.Sprintf(path, tableId, tableId)
+
+	data, err := ref.GetByFirebaseUrlPath(path)
+	if err != nil {
+		return nil, err
+	}
+
+	visitResponse, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("Invalid data returned from firebase")
+	}
+
+	result := make([]*visits.MerchantVisit, 0)
+	for _, visitData := range visitResponse {
+		visit := visits.MerchantVisit{}
+		err = MapToStruct(visitData.(map[string]interface{}), &visit)
+		if err != nil {
+			//do something
+			logger.Errorf("Unable to decode visit response into struct while getting list of visits for " +
+				"tableId = %s with error = %s", tableId, err.Error())
+			continue
+		}
+		result = append(result, &visit)
+	}
+	return result, nil
 }

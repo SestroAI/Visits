@@ -14,6 +14,8 @@ var defaultAllowedDomains = []string{
 	"https://stage.sestro.io",
 	"https://dashboard.sestro.io",
 	"https://dashboard.stage.sestro.io",
+	"https://app.stage.sestro.io",
+	"https://app.sestro.io",
 }
 
 func GetCorsConfig(allowedDomains []string, wsContainer *restful.Container) restful.CrossOriginResourceSharing {
