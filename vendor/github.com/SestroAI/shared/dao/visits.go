@@ -51,6 +51,7 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 	visitorSession := visits.NewVisitDinerSession()
 	visitorSession.DinerId = diner.ID
 	visitorSession.Payer = diner.ID
+	visitorSession.VisitId = visit.ID
 	err = ref.SaveVisitSession(visitorSession.ID, visitorSession)
 	if err != nil {
 		return nil, err

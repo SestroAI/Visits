@@ -95,6 +95,14 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 		session.Orders = make(map[string]*orders.Order, 0)
 	}
 
+	visit, err := ref.GetVisit(session.VisitId)
+	if err != nil {
+		logger.ReqErrorf(req, "Unable to get visit for session with error = %s", err.Error())
+		res.WriteErrorString(http.StatusNotFound, "No Visit with ID = " + session.VisitId + " linked to " +
+			"Session ID = " + sessionId + " found")
+		return
+	}
+
 	var data AddOrderInput
 	err = req.ReadEntity(&data)
 	if err != nil {
@@ -106,7 +114,7 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 	merchantRef := dao.NewRestaurantDao(token)
 
 	for _, item := range data.Items {
-		_, err := merchantRef.GetMenuItemById(item.ItemId)
+		_, err := merchantRef.GetMenuItemById(item.ItemId, visit.MerchantId)
 		if err != nil {
 			//Invalid Item Found
 			res.WriteErrorString(http.StatusBadRequest, "Invalid Item Id " + item.ItemId + " for this restaurant")

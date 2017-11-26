@@ -51,6 +51,7 @@ type VisitDinerSession struct {
 	List 		 []string 		  `json:"list",mapstructure:",squash"`
 	MerchantRating *Rating		  `json:"merchantRating",mapstructure:"merchantRating,squash"`
 	Payer		 string 		  `json:"payer"`
+	VisitId 	 string 		  `json:"visitId"`
 }
 
 func NewVisitDinerSession() *VisitDinerSession {
@@ -60,5 +61,6 @@ func NewVisitDinerSession() *VisitDinerSession {
 	sess.Payer = ""
 	sess.MerchantRating = &Rating{}
 	sess.DinerId = ""
+	sess.VisitId = ""
 	return &sess
 }
