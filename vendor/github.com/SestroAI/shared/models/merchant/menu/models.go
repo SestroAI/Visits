@@ -46,6 +46,7 @@ type Item struct {
 	Description   string   `json:"description"`
 	Images        []string `json:"images"`
 	Meta 		  ItemMeta `json:"meta",mapstructure:",squash"`
+	SectionId     string   `json:"sectionId"`
 }
 
 type Rating struct {

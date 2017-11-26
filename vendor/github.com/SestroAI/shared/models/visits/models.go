@@ -57,5 +57,8 @@ func NewVisitDinerSession() *VisitDinerSession {
 	sess := VisitDinerSession{}
 	sess.ID = utils.GenerateUUID()
 	sess.Orders = make(map[string]*orders.Order, 0)
+	sess.Payer = ""
+	sess.MerchantRating = &Rating{}
+	sess.DinerId = ""
 	return &sess
 }

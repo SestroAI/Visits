@@ -88,10 +88,11 @@ func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.
 	return nil
 }
 
-func (ref *RestaurantDao) GetMenuItemById(id string) (*menu.Item, error) {
-	object, err := ref.GetObjectById(id, TABLE_PATH)
+func (ref *RestaurantDao) GetMenuItemById(itemId, merchantId string) (*menu.Item, error) {
+	items_path := RESTAURANT_PATH + "/" + merchantId + "/menu/items"
+	object, err := ref.GetObjectById(itemId, items_path)
 	if err != nil || object == nil {
-		return nil, errors.New("Unable to get item with id = " + id)
+		return nil, errors.New("Unable to get item with id = " + itemId)
 	}
 
 	item := menu.Item{}
