@@ -8,6 +8,7 @@ import (
 	"github.com/SestroAI/shared/models/visits"
 	serrors "github.com/SestroAI/shared/utils/errors"
 	"time"
+	"github.com/SestroAI/shared/firebase/service"
 )
 
 const (
@@ -87,15 +88,18 @@ func (ref *VisitDao) EndVisit(visit *visits.MerchantVisit) (error) {
 	}
 
 	restaurantDao := NewRestaurantDao(ref.Token)
-	err = restaurantDao.UpdateTableOngoingVisit(visit.TableId, nil)
+	err = restaurantDao.UpdateTableOngoingVisit(visit.TableId, visit)
 	if err != nil {
 		return err
 	}
 
-	/*
-	TODO: This token might not work here. It is typically restaurant worker's token
-	 */
-	userDao := NewUserDao(ref.Token)
+	//Need to use admin token to update diner profiles
+	adminToken, err := service.GetServiceFirebaseAccessKey()
+	if err != nil {
+		return err
+	}
+	userDao := NewUserDao(adminToken)
+	userDao.IsService = true
 
 	for dinerId, _ := range visit.Diners {
 		err = userDao.UpdateDinerOngoingVisit(dinerId, nil)

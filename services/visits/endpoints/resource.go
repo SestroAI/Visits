@@ -200,6 +200,8 @@ func (u VisitResource) EndVisit(req *restful.Request, res *restful.Response) {
 		/*
 		TODO: Dont know what to do here!
 		 */
+		 res.WriteErrorString(http.StatusInternalServerError, "Unable to send visit completion event")
+		 return
 	}
 
 	res.WriteHeader(http.StatusOK)
