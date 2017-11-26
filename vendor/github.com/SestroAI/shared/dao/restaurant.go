@@ -80,7 +80,12 @@ func (ref *RestaurantDao) UpdateTableOngoingVisit(tableId string, visit *visits.
 		return err
 	}
 
-	table.OngoingVisitId = visit.ID
+	if visit != nil {
+		table.OngoingVisitId = visit.ID
+	} else {
+		table.OngoingVisitId = ""
+	}
+
 	err = ref.SaveTable(table.ID, table)
 	if err != nil {
 		return err

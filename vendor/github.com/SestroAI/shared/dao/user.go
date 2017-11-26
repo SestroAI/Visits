@@ -140,7 +140,11 @@ func (ref *UserDao) UpdateDinerOngoingVisit(userId string, visit *visits.Merchan
 		return err
 	}
 
-	user.CustomerProfile.OngoingVisitId = visit.ID
+	if visit != nil {
+		user.CustomerProfile.OngoingVisitId = visit.ID
+	} else {
+		user.CustomerProfile.OngoingVisitId = ""
+	}
 	err = ref.SaveUser(user.ID, user)
 	return err
 }
