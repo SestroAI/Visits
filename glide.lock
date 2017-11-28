@@ -1,5 +1,5 @@
 hash: b8e8a2826f2d9dc4fb8ab91c2cb9bff85130ee3e0c1fec950e9c9480c8be5203
-updated: 2017-11-27T23:00:31.568474123-08:00
+updated: 2017-11-27T23:23:35.782018617-08:00
 imports:
 - name: cloud.google.com/go
   version: f6de2c509ed9d2af648c3c147207eaaf97149aed
@@ -17,7 +17,7 @@ imports:
 - name: github.com/dgrijalva/jwt-go
   version: a539ee1a749a2b895533f979515ac7e6e0f5b650
 - name: github.com/emicklei/go-restful
-  version: 380d11fa1d52d322f8f1ef256aa6b601e796e9a1
+  version: 2dd44038f0b95ae693b266c5f87593b5d2fdd78d
   subpackages:
   - log
 - name: github.com/emicklei/go-restful-swagger12
