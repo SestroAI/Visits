@@ -18,15 +18,15 @@ type APIService struct {
 func main() {
 	wsContainer := restful.NewContainer()
 
+	cors := routing.GetCorsConfig([]string{}, wsContainer)
+	wsContainer.Filter(cors.Filter)
+	wsContainer.Filter(wsContainer.OPTIONSFilter)
+
 	u := endpoints.VisitResource{}
 	u.Register(wsContainer, utils.GetServicePrefix())
 
 	u2 := sessionEP.SessionResource{}
 	u2.Register(wsContainer, utils.GetServicePrefix())
-
-	cors := routing.GetCorsConfig([]string{}, wsContainer)
-	wsContainer.Filter(cors.Filter)
-	wsContainer.Filter(wsContainer.OPTIONSFilter)
 
 	wsContainer.Filter(routing.LoggingFilter)
 
