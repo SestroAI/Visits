@@ -8,7 +8,6 @@ import (
 	"github.com/SestroAI/shared/models/visits"
 	serrors "github.com/SestroAI/shared/utils/errors"
 	"time"
-	"github.com/SestroAI/shared/firebase/service"
 )
 
 const (
