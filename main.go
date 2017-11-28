@@ -20,7 +20,7 @@ func main() {
 
 	cors := routing.GetCorsConfig([]string{}, wsContainer)
 	wsContainer.Filter(cors.Filter)
-	wsContainer.Filter(wsContainer.OPTIONSFilter)
+	//wsContainer.Filter(wsContainer.OPTIONSFilter)
 
 	u := endpoints.VisitResource{}
 	u.Register(wsContainer, utils.GetServicePrefix())
