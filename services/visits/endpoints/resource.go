@@ -185,6 +185,11 @@ func (u VisitResource) EndVisit(req *restful.Request, res *restful.Response) {
 		return
 	}
 
+	if visit.IsComplete {
+		res.WriteHeaderAndEntity(http.StatusAlreadyReported, "Visit has already been ended")
+		return
+	}
+
 	visit.GuestRating = &input.Rating
 	err = ref.EndVisit(visit)
 	if err != nil {

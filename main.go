@@ -25,7 +25,6 @@ func main() {
 	u2.Register(wsContainer, utils.GetServicePrefix())
 
 	cors := routing.GetCorsConfig([]string{}, wsContainer)
-
 	wsContainer.Filter(cors.Filter)
 	wsContainer.Filter(wsContainer.OPTIONSFilter)
 
