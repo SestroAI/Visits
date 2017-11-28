@@ -94,11 +94,7 @@ func (ref *VisitDao) EndVisit(visit *visits.MerchantVisit) (error) {
 	}
 
 	//Need to use admin token to update diner profiles
-	adminToken, err := service.GetServiceFirebaseAccessKey()
-	if err != nil {
-		return err
-	}
-	userDao := NewUserDao(adminToken)
+	userDao := NewUserDao("")
 	userDao.IsService = true
 
 	for dinerId, _ := range visit.Diners {

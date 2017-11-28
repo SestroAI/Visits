@@ -23,7 +23,7 @@ func GetCorsConfig(allowedDomains []string, wsContainer *restful.Container) rest
 
 	cors := restful.CrossOriginResourceSharing{
 		ExposeHeaders:  []string{"X-Set-Authorization"},
-		AllowedHeaders: []string{"Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin"},
+		AllowedHeaders: []string{"Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin", "Origin"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "OPTIONS", "DELETE"},
 		CookiesAllowed: true,
 		AllowedDomains: allowedDomains,
