@@ -17,7 +17,7 @@ type APIService struct {
 
 func main() {
 	wsContainer := restful.NewContainer()
-
+	restful.EnableTracing(true)
 	cors := routing.GetCorsConfig([]string{"*"}, wsContainer)
 	wsContainer.Filter(cors.Filter)
 	//wsContainer.Filter(wsContainer.OPTIONSFilter)
