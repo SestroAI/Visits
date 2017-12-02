@@ -34,20 +34,27 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 			"err = %s", tableId, diner.ID, err.Error())
 		return nil, serrors.ErrConflict
 	}
+
+	var visit *visits.MerchantVisit
 	if table.OngoingVisitId != "" {
 		logger.Infof("Cannot start a new visit on tableId = %s for diner id = %s when there is already an "+
 			"active visit going on", tableId, diner.ID)
-		visit, err := ref.GetVisit(table.OngoingVisitId)
+		visit, err = ref.GetVisit(table.OngoingVisitId)
 		if err != nil {
 			return nil, err
 		}
-		return visit, errors.New("Active Visit for this table already exists")
+	} else {
+		visit = visits.NewMerchantVisit("")
+		visit.TableId = tableId
+		visit.MerchantId = table.MerchantId
 	}
 
-	visit := visits.NewMerchantVisit("")
-	visit.TableId = tableId
-	visit.MerchantId = table.MerchantId
+	if _, ok := visit.Diners[diner.ID]; ok {
+		//diner already in this visit. This is a duplicate request
+		return visit, nil
+	}
 
+	//else create a session for this user in this visit
 	visitorSession := visits.NewVisitDinerSession()
 	visitorSession.DinerId = diner.ID
 	visitorSession.Payer = diner.ID

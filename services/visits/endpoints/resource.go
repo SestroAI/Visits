@@ -128,20 +128,10 @@ func (u VisitResource) CreateVisit(req *restful.Request, res *restful.Response) 
 	//Since visit does not already exists, start a new one
 	visit, err := ref.StartNewVisit(diner, data.TableId)
 	if err != nil {
-		if visit != nil {
-			res.WriteHeader(http.StatusAlreadyReported)
-		} else {
-			if err == serrors.ErrConflict {
-				res.WriteError(http.StatusBadRequest, serrors.ErrBadData)
-			} else {
-				logger.ReqErrorf(req, "Unable to start a new Visit for table: %s and err = %s",
-					data.TableId, err.Error())
-				res.WriteError(http.StatusInternalServerError, serrors.ErrServerError)
-			}
-			return
-		}
-	} else {
-		res.WriteHeader(http.StatusOK)
+		logger.ReqErrorf(req, "Unable to start visit for Diner Id = %s for tableId = %s with error = %s",
+			diner.ID, data.TableId, err.Error())
+		res.WriteErrorString(http.StatusInternalServerError, "Uable to start visit at this point.")
+		return
 	}
 
 	dinerSessionId, ok := visit.Diners[diner.ID]
@@ -152,7 +142,8 @@ func (u VisitResource) CreateVisit(req *restful.Request, res *restful.Response) 
 		return
 	}
 
-	res.WriteEntity(
+	res.WriteHeaderAndEntity(
+		http.StatusOK,
 		NewVisitResponse{
 			VisitId:        visit.ID,
 			DinerSessionId: dinerSessionId,
