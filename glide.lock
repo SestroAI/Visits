@@ -1,5 +1,5 @@
 hash: b8e8a2826f2d9dc4fb8ab91c2cb9bff85130ee3e0c1fec950e9c9480c8be5203
-updated: 2017-12-02T14:09:49.055291891-08:00
+updated: 2017-12-02T16:38:56.8704262-08:00
 imports:
 - name: cloud.google.com/go
   version: f6de2c509ed9d2af648c3c147207eaaf97149aed
@@ -44,7 +44,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: 51d71c9987f37dde002bd80a7517403a3e893aac
+  version: 34e2b14892b59ffa2bd42a0b27b00840a0c37fdc
   subpackages:
   - config
   - dao

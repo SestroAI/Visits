@@ -94,7 +94,7 @@ func (ref *VisitDao) EndVisit(visit *visits.MerchantVisit) (error) {
 	}
 
 	restaurantDao := NewRestaurantDao(ref.Token)
-	err = restaurantDao.UpdateTableOngoingVisit(visit.TableId, visit)
+	err = restaurantDao.UpdateTableOngoingVisit(visit.TableId, nil)
 	if err != nil {
 		return err
 	}
