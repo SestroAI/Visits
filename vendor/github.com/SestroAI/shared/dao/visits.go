@@ -8,7 +8,6 @@ import (
 	"github.com/SestroAI/shared/models/visits"
 	serrors "github.com/SestroAI/shared/utils/errors"
 	"time"
-	"google.golang.org/genproto/googleapis/bigtable/admin/table/v1"
 )
 
 const (
