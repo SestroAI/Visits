@@ -8,6 +8,7 @@ import (
 	"github.com/SestroAI/shared/models/visits"
 	serrors "github.com/SestroAI/shared/utils/errors"
 	"time"
+	"google.golang.org/genproto/googleapis/bigtable/admin/table/v1"
 )
 
 const (
@@ -27,7 +28,11 @@ func NewVisitDao(token string) *VisitDao {
 
 func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.MerchantVisit, error) {
 	//Check if table is empty
-	restaurantDao := NewRestaurantDao(ref.Token)
+
+	//Use sudo token for restaurant update
+	restaurantDao := NewRestaurantDao("")
+	restaurantDao.IsService = true
+
 	table, err := restaurantDao.GetTableById(tableId)
 	if err != nil {
 		logger.Errorf("No table with tableId = %s exists to start visit for Diner with id = %s and "+
@@ -54,7 +59,14 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 		return visit, nil
 	}
 
-	//else create a session for this user in this visit
+	//This has to be done before adding the session to visit, because of firebase rules
+	userDao := NewUserDao(ref.Token)
+	err = userDao.UpdateDinerOngoingVisit(diner.ID, visit)
+	if err != nil {
+		return nil, err
+	}
+
+	//create a session for this user in this visit
 	visitorSession := visits.NewVisitDinerSession()
 	visitorSession.DinerId = diner.ID
 	visitorSession.Payer = diner.ID
@@ -71,12 +83,6 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 	}
 
 	err = restaurantDao.UpdateTableOngoingVisit(table.ID, visit)
-	if err != nil {
-		return nil, err
-	}
-
-	userDao := NewUserDao(ref.Token)
-	err = userDao.UpdateDinerOngoingVisit(diner.ID, visit)
 	if err != nil {
 		return nil, err
 	}

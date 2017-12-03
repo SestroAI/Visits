@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "sestro-165123",
+  "private_key_id": "ed8df9d5835cbe15a60c685072641215986928e0",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCW+KZPEIbAtk42\ndn9OK0BMWqcsqBqxEaJfrMm/5ykQjtqGA8G5O9+GxJtUWUKtwgSsSaSdr4CbwYYv\n/mlqRDRZqOaXKN775Ph+q8JCq0+KFv77tqwR7tUg8Q11FvxbO0PlCwL3IgmMj/vq\new6G02EOmnmkQ90MSUTJ0xcO5jUqhrT9jyP3o3kjpxtxazb7RBABKJDTE6v7b9zW\nC8e2+44CFyNJ2sRSn2Mx9Dqj3CL/KLW21cg62pJwc7pBc2ytkSq7Zufp0S454H5b\nGurmACqcRBivDkpLgv7k4jDlpb+OVowk+0wUKo5rf6gpZIhSyjSsL8GIsaMpQPz3\nqqyDtKsBAgMBAAECggEAAoI1OUEcDB27ZPpJGUJsuhgTiRFuCB0z5oUXgSHVM9o7\n1VhAotRU3Yds0VT+X6bGrxo2KwychXoMwcVneQWTHR5KXp6mPedLHce63aK9Gp1R\nNVuOtmmSjw6SW6y7GsT8VtT9AqBFKlnGJNpQnnrqtPRqKwmZpbed9gCU9IFsxr0Z\nvz+pMs+XKxHxUZFpn7MRifA2POH8hou4vRehKDwjMxidyrSp49GN4A/x2RvdHo97\n/zJ4kyNbYzGNEXmPM16aXPniBQy7TVaknGy+O+vrCVjcGb0EmQ3FHU2+PRYoxXDr\nRSTFmAfUDCU26XjNKmB68xdZLpby/ro7kbqopgfWVQKBgQDQtpb48/gpJSCQB0sI\nJCHCCy5HiM4EsnnHGj8xuA0cQAl10/haVei+WKSpXqZZc/CGznzACETS781sFamy\naWRPMACPBSV20g8EMwerrWi28FT9P1Vv1FL3Oau2cXkb+1hrNZpp1NEmwJlOi1bI\nbHWZd/VTVwy+YBXsVg/GX99u6wKBgQC5LQPRGoV4RbpnzDdpHQZGM6Bx77bddoIf\n4rxOkGAeuHVfku1SmeBTIcHWIrisDzD/94STOHpa/qp5p4bOf+5jwPCS+S5WTURx\nNSgDlw6lciES1T95XImOHbqzJczCss0QszBIybYB4o0987CCRHHqDk+F8417yCyk\nCMAwBwoKwwKBgAHWabPdagTqt8Os3MNAli+AK7MjiDTQYXQYThAg/7SM98haymf5\nM6hhXWnEVJCbDbYSIVULfZeh1twpwKm6ddCgqpCXygGmzc0Kqfmf+DkMGqN0KEto\nwiY9Er7zds6BQwEGosplvkWqEm93mJcBJXPpc3Z9YLZYYDkJdPAZLf1rAoGACU01\nj99hLPVzs5sSfXkzw3r8aDy+VsmJJ8jf5KJj8acaXj6nJSsNlZ9weS0tUZdBwtnQ\nEwUXQFLihVHg96Z9dw1OCFPz++nNslIVPHjuB2mAN832bkYzsqvToQQZEP6iRmB5\n4G4hcl7K8X24NBL0Fem6HORrCvi3JVY7MS5pVrkCgYEArrNmpwFEwV4EuoEHhlcM\nzIxCCXF+P2/HY4CWty1/A49qmGU4iJbJTNip3+FVXWni0J/QnaSSDotxw3HVPIF7\nAvPOoMVWLdCjyKwBLOHWoGBCWui43ABTXHjFYFpfc+aSDh1Pdrp+DivPIhxntv4s\nFmqxzOLHY2TFNudz2MejKzU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "sestro-stage-visits@sestro-165123.iam.gserviceaccount.com",
+  "client_id": "102136255042340232879",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sestro-stage-visits%40sestro-165123.iam.gserviceaccount.com"
+}
