@@ -29,8 +29,8 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 	//Check if table is empty
 
 	//Use sudo token for restaurant update
-	restaurantDao := NewRestaurantDao("")
-	restaurantDao.IsService = true
+	restaurantDao := NewRestaurantDao(ref.Token)
+	//restaurantDao.IsService = true
 
 	table, err := restaurantDao.GetTableById(tableId)
 	if err != nil {
