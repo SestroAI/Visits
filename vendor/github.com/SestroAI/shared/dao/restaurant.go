@@ -45,7 +45,7 @@ func (ref *RestaurantDao) GetRestaurantById(id string) (*merchant.Merchant, erro
 func (ref *RestaurantDao) GetMerchantStripeInfo(merchantId string) (*merchant.MerchantStripeInfo, error) {
 	object, err := ref.GetObjectById(merchantId, MERCHANT_STRIPE_INFO_PATH)
 	if err != nil || object == nil {
-		return nil, errors.New("Unable to get merchant stripe info with id = " + merchantId)
+		return nil, errors.New("Unable to get merchant stripe info with id = " + merchantId + " with error = " + err.Error())
 	}
 
 	info := merchant.MerchantStripeInfo{}
@@ -61,7 +61,7 @@ func (ref *RestaurantDao) SaveMerchantStripeInfo(id string, info *merchant.Merch
 func (ref *RestaurantDao) GetTableById(id string) (*merchant.Table, error) {
 	object, err := ref.GetObjectById(id, TABLE_PATH)
 	if err != nil || object == nil {
-		return nil, errors.New("Unable to get restaurant with id = " + id)
+		return nil, errors.New("Unable to get table with id = " + id + " with error = " + err.Error())
 	}
 
 	table := merchant.Table{}
@@ -97,7 +97,7 @@ func (ref *RestaurantDao) GetMenuItemById(itemId, merchantId string) (*menu.Item
 	items_path := RESTAURANT_PATH + "/" + merchantId + "/menu/items"
 	object, err := ref.GetObjectById(itemId, items_path)
 	if err != nil || object == nil {
-		return nil, errors.New("Unable to get item with id = " + itemId)
+		return nil, errors.New("Unable to get item with id = " + itemId + " with error = " + err.Error())
 	}
 
 	item := menu.Item{}

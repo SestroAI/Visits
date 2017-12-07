@@ -127,7 +127,7 @@ func (ref *VisitDao) SaveVisit(id string, visit *visits.MerchantVisit) error {
 func (ref *VisitDao) GetVisit(id string) (*visits.MerchantVisit, error) {
 	object, err := ref.GetObjectById(id, VISIT_PATH)
 	if object == nil || err != nil {
-		return nil, errors.New("Unable to get Visit with id = " + id)
+		return nil, errors.New("Unable to get Visit with id = " + id + " with error = " + err.Error())
 	}
 
 	visit := visits.MerchantVisit{}
@@ -143,7 +143,7 @@ func (ref *VisitDao) SaveVisitSession(id string, visitSess *visits.VisitDinerSes
 func (ref *VisitDao) GetVisitSession(id string) (*visits.VisitDinerSession, error) {
 	object, err := ref.GetObjectById(id, VISIT_SESSION_PATH)
 	if object == nil{
-		return nil, errors.New("Unable to get Visit Session with id = " + id)
+		return nil, errors.New("Unable to get Visit Session with id = " + id + " with error = " + err.Error())
 	}
 	if err != nil {
 		return nil, err
