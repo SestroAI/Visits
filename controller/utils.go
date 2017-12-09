@@ -20,7 +20,7 @@ func IsUserAllowedToOrder(user *auth.User, visit *visits.MerchantVisit) (bool, s
 		return true, "ok"
 	}
 
-	if user.CustomerProfile.StripeCustomer == nil || user.CustomerProfile.StripeCustomer.Sources.Count == 0{
+	if user.CustomerProfile.StripeCustomer == nil || user.CustomerProfile.StripeCustomer.Sources.ListMeta.Count == 0{
 		//No Stripe Customer
 		return false, "noCard"
 	}
