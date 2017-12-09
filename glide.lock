@@ -1,5 +1,5 @@
 hash: b8e8a2826f2d9dc4fb8ab91c2cb9bff85130ee3e0c1fec950e9c9480c8be5203
-updated: 2017-12-06T18:42:11.044030587-08:00
+updated: 2017-12-08T20:00:15.701887534-08:00
 imports:
 - name: cloud.google.com/go
   version: f6de2c509ed9d2af648c3c147207eaaf97149aed
@@ -44,7 +44,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: e4b66006fc826b0c67ba1d8a0d7a9cb201364fb7
+  version: 233237971c35480f3b38790feb70be4c9adf732d
   subpackages:
   - config
   - dao
@@ -53,6 +53,7 @@ imports:
   - firebase/service
   - logger
   - models/auth
+  - models/billing
   - models/merchant
   - models/merchant/menu
   - models/orders

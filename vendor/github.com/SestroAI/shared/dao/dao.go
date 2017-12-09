@@ -126,7 +126,8 @@ func (ref *Dao) SaveObjectById(id string, object interface{}, objectPath string)
 	if res.StatusCode != http.StatusOK {
 		defer res.Body.Close()
 		b, _ := ioutil.ReadAll(res.Body)
-		logger.Errorf("Unable to save object with ID = %s and firebase response: %s", id, string(b))
+		logger.Errorf("Unable to save object with ID = %s, path = %s and firebase response: %s", id,
+			objectPath, string(b))
 		return errors.New("Unable to save object. Firebase returned code: " + strconv.Itoa(res.StatusCode))
 	}
 	return nil

@@ -12,6 +12,8 @@ import (
 	"github.com/SestroAI/shared/models/orders"
 	serrors "github.com/SestroAI/shared/utils/errors"
 	"time"
+	"github.com/SestroAI/shared/models/auth"
+	"github.com/SestroAI/Visits/controller"
 )
 
 type SessionResource struct {
@@ -80,6 +82,12 @@ type AddOrderInput struct {
 func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 	token, _ := req.Attribute(config.RequestToken).(string)
 
+	user, ok := req.Attribute(config.RequestUser).(*auth.User)
+	if !ok {
+		res.WriteErrorString(http.StatusForbidden, "No valid user found")
+		return
+	}
+
 	ref := dao.NewVisitDao(token)
 	sessionId := req.PathParameter("session_id")
 
@@ -100,6 +108,12 @@ func (u SessionResource) AddOrder(req *restful.Request, res *restful.Response) {
 		logger.ReqErrorf(req, "Unable to get visit for session with error = %s", err.Error())
 		res.WriteErrorString(http.StatusNotFound, "No Visit with ID = " + session.VisitId + " linked to " +
 			"Session ID = " + sessionId + " found")
+		return
+	}
+
+
+	if isAllowed, reason := controller.IsUserAllowedToOrder(user, visit); !isAllowed {
+		res.WriteErrorString(http.StatusConflict, reason)
 		return
 	}
 

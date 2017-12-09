@@ -52,6 +52,15 @@ Will create a new visit if this is the first user, otherwise add to existing
     Output:
     Session Object
 
+    Error:
+    User not allowed to order
+    Response Code: 409 (StatusConflict)
+    Response String:
+      visitEnded    ->    Say the restaurant ended the visit. Please start a new one: refresh user profile
+      delinquent    ->    You have unpaid charges, Please contact support to get unblocked
+      noCard        ->    Redirect to Payment screen
+      userNotPartOfVisit    ->  Something is wrong, refresh user profile
+
 4) PUT /sessions/{session_id}/orders/{order_id}/status/{status}
 
     data :

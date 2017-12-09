@@ -22,6 +22,8 @@ type MerchantStripeInfo struct {
 	AccountID string `json:"accountId"`
 	PublishableKey string `json:"publishableKey"`
 	LastUpdated time.Time `json:"lastUpdated"`
+	TaxPercentage float64 `json:"taxPercentage"`
+	ApplicationFeePercentage float64 `json:"applicationFeePercentage"`
 }
 
 type Cuisine struct {
