@@ -90,16 +90,20 @@ func (ref *VisitDao) StartNewVisit(diner *auth.User, tableId string) (*visits.Me
 }
 
 func (ref *VisitDao) EndVisit(visit *visits.MerchantVisit) (error) {
-	visit.IsComplete = true
-	visit.EndTime = time.Now()
 
-	err := ref.SaveVisit(visit.ID, visit)
+	//vacate the table
+	restaurantDao := NewRestaurantDao(ref.Token)
+	err := restaurantDao.UpdateTableOngoingVisit(visit.TableId, nil)
 	if err != nil {
+		//User needs to have restaurant table perms
 		return err
 	}
 
-	restaurantDao := NewRestaurantDao(ref.Token)
-	err = restaurantDao.UpdateTableOngoingVisit(visit.TableId, nil)
+	//Mark visit as complete
+	visit.IsComplete = true
+	visit.EndTime = time.Now()
+
+	err = ref.SaveVisit(visit.ID, visit)
 	if err != nil {
 		return err
 	}

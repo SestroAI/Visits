@@ -2,6 +2,7 @@ package form
 
 import (
 	"net/url"
+	"sync"
 	"testing"
 
 	assert "github.com/stretchr/testify/require"
@@ -128,21 +129,30 @@ func BenchmarkAppendTo(b *testing.B) {
 func TestAppendTo(t *testing.T) {
 	var arrayVal = [3]string{"1", "2", "3"}
 
-	var boolVal = true
+	var boolValT = true
+	var boolValF = false
 
 	var float32Val float32 = 1.2345
+	var float32Val0 float32
 
 	var float64Val = 1.2345
+	var float64Val0 = 0.0
 
 	var intVal = 123
+	var intVal0 = 0
 	var int8Val int8 = 123
+	var int8Val0 int8
 	var int16Val int16 = 123
+	var int16Val0 int16
 	var int32Val int32 = 123
+	var int32Val0 int32
 	var int64Val int64 = 123
+	var int64Val0 int64
 
 	var sliceVal = []string{"1", "2", "3"}
 
 	var stringVal = "123"
+	var stringVal0 = ""
 
 	var subStructVal = testSubStruct{
 		SubSubStruct: testSubSubStruct{
@@ -151,10 +161,15 @@ func TestAppendTo(t *testing.T) {
 	}
 
 	var uintVal uint = 123
+	var uintVal0 uint
 	var uint8Val uint8 = 123
+	var uint8Val0 uint8
 	var uint16Val uint16 = 123
+	var uint16Val0 uint16
 	var uint32Val uint32 = 123
+	var uint32Val0 uint32
 	var uint64Val uint64 = 123
+	var uint64Val0 uint64
 
 	testCases := []struct {
 		field string
@@ -165,27 +180,43 @@ func TestAppendTo(t *testing.T) {
 
 		{"array_indexed[2]", &testStruct{ArrayIndexed: arrayVal}, "3"},
 
-		{"bool", &testStruct{Bool: boolVal}, "true"},
-		{"bool_ptr", &testStruct{BoolPtr: &boolVal}, "true"},
+		{"bool", &testStruct{Bool: boolValT}, "true"},
+		{"bool_ptr", &testStruct{}, ""},
+		{"bool_ptr", &testStruct{BoolPtr: &boolValT}, "true"},
+		{"bool_ptr", &testStruct{BoolPtr: &boolValF}, "false"},
 
 		{"emptied", &testStruct{Emptied: true}, ""},
 
 		{"float32", &testStruct{Float32: float32Val}, "1.2345"},
 		{"float32_ptr", &testStruct{Float32Ptr: &float32Val}, "1.2345"},
+		{"float32_ptr", &testStruct{Float32Ptr: &float32Val0}, "0.0000"},
+		{"float32_ptr", &testStruct{}, ""},
 
 		{"float64", &testStruct{Float64: float64Val}, "1.2345"},
 		{"float64_ptr", &testStruct{Float64Ptr: &float64Val}, "1.2345"},
+		{"float64_ptr", &testStruct{Float64Ptr: &float64Val0}, "0.0000"},
+		{"float64_ptr", &testStruct{}, ""},
 
 		{"int", &testStruct{Int: intVal}, "123"},
 		{"int_ptr", &testStruct{IntPtr: &intVal}, "123"},
+		{"int_ptr", &testStruct{IntPtr: &intVal0}, "0"},
+		{"int_ptr", &testStruct{}, ""},
 		{"int8", &testStruct{Int8: int8Val}, "123"},
 		{"int8_ptr", &testStruct{Int8Ptr: &int8Val}, "123"},
+		{"int8_ptr", &testStruct{Int8Ptr: &int8Val0}, "0"},
+		{"int8_ptr", &testStruct{}, ""},
 		{"int16", &testStruct{Int16: int16Val}, "123"},
 		{"int16_ptr", &testStruct{Int16Ptr: &int16Val}, "123"},
+		{"int16_ptr", &testStruct{Int16Ptr: &int16Val0}, "0"},
+		{"int16_ptr", &testStruct{}, ""},
 		{"int32", &testStruct{Int32: int32Val}, "123"},
 		{"int32_ptr", &testStruct{Int32Ptr: &int32Val}, "123"},
+		{"int32_ptr", &testStruct{Int32Ptr: &int32Val0}, "0"},
+		{"int32_ptr", &testStruct{}, ""},
 		{"int64", &testStruct{Int64: int64Val}, "123"},
 		{"int64_ptr", &testStruct{Int64Ptr: &int64Val}, "123"},
+		{"int64_ptr", &testStruct{Int64Ptr: &int64Val0}, "0"},
+		{"int64_ptr", &testStruct{}, ""},
 
 		{"inverted", &testStruct{Inverted: true}, "false"},
 
@@ -211,6 +242,8 @@ func TestAppendTo(t *testing.T) {
 
 		{"string", &testStruct{String: stringVal}, stringVal},
 		{"string_ptr", &testStruct{StringPtr: &stringVal}, stringVal},
+		{"string_ptr", &testStruct{StringPtr: &stringVal0}, stringVal0},
+		{"string_ptr", &testStruct{}, stringVal0},
 
 		{"substruct[subsubstruct][string]", &testStruct{SubStruct: subStructVal}, "123"},
 		{"substruct_ptr[subsubstruct][string]", &testStruct{SubStructPtr: &subStructVal}, "123"},
@@ -220,14 +253,24 @@ func TestAppendTo(t *testing.T) {
 
 		{"uint", &testStruct{Uuint: uintVal}, "123"},
 		{"uint_ptr", &testStruct{UuintPtr: &uintVal}, "123"},
+		{"uint_ptr", &testStruct{UuintPtr: &uintVal0}, "0"},
+		{"uint_ptr", &testStruct{}, ""},
 		{"uint8", &testStruct{Uuint8: uint8Val}, "123"},
 		{"uint8_ptr", &testStruct{Uuint8Ptr: &uint8Val}, "123"},
+		{"uint8_ptr", &testStruct{Uuint8Ptr: &uint8Val0}, "0"},
+		{"uint8_ptr", &testStruct{}, ""},
 		{"uint16", &testStruct{Uuint16: uint16Val}, "123"},
 		{"uint16_ptr", &testStruct{Uuint16Ptr: &uint16Val}, "123"},
+		{"uint16_ptr", &testStruct{Uuint16Ptr: &uint16Val0}, "0"},
+		{"uint16_ptr", &testStruct{}, ""},
 		{"uint32", &testStruct{Uuint32: uint32Val}, "123"},
 		{"uint32_ptr", &testStruct{Uuint32Ptr: &uint32Val}, "123"},
+		{"uint32_ptr", &testStruct{Uuint32Ptr: &uint32Val0}, "0"},
+		{"uint32_ptr", &testStruct{}, ""},
 		{"uint64", &testStruct{Uuint64: uint64Val}, "123"},
 		{"uint64_ptr", &testStruct{Uuint64Ptr: &uint64Val}, "123"},
+		{"uint64_ptr", &testStruct{Uuint64Ptr: &uint64Val0}, "0"},
+		{"uint64_ptr", &testStruct{}, ""},
 
 		{"zeroed", &testStruct{Zeroed: true}, "0"},
 	}
@@ -306,6 +349,35 @@ func TestFormatKey(t *testing.T) {
 	assert.Equal(t, "param[key]", FormatKey([]string{"param", "key"}))
 	assert.Equal(t, "param[key][]", FormatKey([]string{"param", "key", ""}))
 	assert.Equal(t, "param[key][0]", FormatKey([]string{"param", "key", "0"}))
+}
+
+// The encoder uses a type cache for speed. This test is designed to help
+// verify that concurrent access to it is safe.
+//
+// I had good success in reproducing concurrent access errors on my computer
+// using this test, but given that we're just throwing lots of Goroutines out
+// there and hoping for an error, your mileage may vary depending on your
+// system. It may be necessary to increase the value of `n` or introduce other
+// constructs (although hopefully this package will stay concurrency-safe).
+func TestCacheConcurrency(t *testing.T) {
+	// Clear out anything in the existing cache
+	encoderCache.m = nil
+	structCache.m = nil
+
+	var wg sync.WaitGroup
+	n := 10
+	val := &testStruct{String: "123"}
+
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func() {
+			form := &Values{}
+			AppendTo(form, val)
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
 }
 
 func TestParseTag(t *testing.T) {

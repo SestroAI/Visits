@@ -46,15 +46,17 @@ type FirebaseUser struct {
 
 type User struct {
 	FirebaseUser    `mapstructure:",squash"`
-	Roles           map[string]*Role     `json:"roles",mapstructure:"roles,squash"`
+	Roles            map[string]*Role     `json:"roles",mapstructure:"roles,squash"`
 	CustomerProfile *UserCustomerProfile `json:"customerProfile",mapstructure:"customerProfile,squash"`
 	MerchantProfiles map[string]*UserMerchantProfile `json:"merchantProfiles",mapstructure:"merchantProfiles,squash"`
+	Tips 			 int `json:"tips"`
 }
 
 type UserCustomerProfile struct {
 	Visits         map[string]bool `json:"visits",mapstructure:"visits,squash"`
 	OngoingVisitId string          `json:"ongoingVisitId",mapstructure:"ongoingVisitId"`
 	StripeCustomer *stripe.Customer `json:"stripeCustomer",mapstructure:"stripeCustomer,squash"`
+	StripePaymentSources []string   `json:"stripePaymentSources",mapstructure:"stripePaymentSources,squash"`
 }
 
 type UserMerchantProfile struct {

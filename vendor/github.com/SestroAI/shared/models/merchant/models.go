@@ -12,9 +12,12 @@ type Merchant struct {
 	Cuisine  string `json:"cuisine"` //Cuisine ID
 	URL      string `json:"url"`
 	YelpLink string `json:"yelpLink"`
-	Menu   menu.Menu `json:"menu",mapstructure:"menu,squash"`
+	Menu   	 menu.Menu `json:"menu",mapstructure:"menu,squash"`
 	isPaymentSetup bool `json:"isPaymentSetup"`
-	Tables 	map[string]bool `json:"tables"`
+	Tables 	 map[string]bool `json:"tables"`
+	Email 	 string `json:"email"`
+	Phone    string `json:"phone"`
+	SupportContactPreference string `json:"supportContactPreference"`
 }
 
 type MerchantStripeInfo struct {
@@ -37,3 +40,17 @@ type Table struct {
 	OngoingVisitId string `json:"ongoingVisitId"`
 	Name           string `json:"name"`
 }
+
+type TableList []*Table
+
+func (tl TableList) Len() int {
+	return len(tl)
+}
+
+func (a TableList) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+	}
+
+func (a TableList) Less(i, j int) bool {
+	return a[i].Name < a[j].Name
+	}

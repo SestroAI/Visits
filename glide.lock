@@ -1,5 +1,5 @@
 hash: b8e8a2826f2d9dc4fb8ab91c2cb9bff85130ee3e0c1fec950e9c9480c8be5203
-updated: 2017-12-08T20:00:15.701887534-08:00
+updated: 2017-12-13T11:35:01.822068956-08:00
 imports:
 - name: cloud.google.com/go
   version: f6de2c509ed9d2af648c3c147207eaaf97149aed
@@ -44,7 +44,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/SestroAI/shared
-  version: 233237971c35480f3b38790feb70be4c9adf732d
+  version: 93a6a65d8c8daa1e6cbb6a171e6b423ef8b5ba96
   subpackages:
   - config
   - dao
@@ -64,7 +64,7 @@ imports:
   - utils/errors
   - utils/sestro_redis
 - name: github.com/stripe/stripe-go
-  version: 2568e0f2a1ab55fa486a10e8d6797d2dce0c70b5
+  version: 0a93e406acee553dcece6034a0b3f4ab62b228b5
   subpackages:
   - form
   - orderitem

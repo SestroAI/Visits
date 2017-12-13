@@ -92,6 +92,7 @@ func (ref *UserDao) RegisterFirebaseUser(userId string, roles []*auth.Role) (*au
 		Visits:map[string]bool{},
 		OngoingVisitId:"",
 		StripeCustomer:nil,  //Is created when user adds payment source
+		StripePaymentSources:make([]string, 0),
 	}
 
 	//Initialise merchant profile

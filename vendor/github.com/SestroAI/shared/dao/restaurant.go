@@ -31,8 +31,11 @@ func (ref *RestaurantDao) SaveRestaurant(id string, restro *merchant.Merchant) e
 
 func (ref *RestaurantDao) GetRestaurantById(id string) (*merchant.Merchant, error) {
 	object, err := ref.GetObjectById(id, RESTAURANT_PATH)
-	if err != nil || object == nil {
-		return nil, err
+	if err != nil {
+		return nil, errors.New("Unable to get merchant with ID = " + id + " with error = " + err.Error())
+	}
+	if  object == nil {
+		return nil, errors.New("Empty data for merchant with id = " + id)
 	}
 
 	restro := merchant.Merchant{}
@@ -48,7 +51,7 @@ func (ref *RestaurantDao) GetMerchantStripeInfo(merchantId string) (*merchant.Me
 		return nil, errors.New("Unable to get merchant stripe info with id = " + merchantId + " with error = " + err.Error())
 	}
 	if  object == nil {
-		return nil, errors.New("Unable to get merchant with id = " + merchantId)
+		return nil, errors.New("Empty data for merchant stripe info with id = " + merchantId)
 	}
 
 	info := merchant.MerchantStripeInfo{}

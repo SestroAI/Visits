@@ -35,6 +35,10 @@ const (
 type SourceFlow string
 
 const (
+	// FlowCodeVerification a verification code should be communicated by the
+	// customer to authenticate the source.
+	FlowCodeVerification SourceFlow = "code_verification"
+
 	// FlowNone no particular authentication is involved the source should
 	// become chargeable directly or asyncrhonously.
 	FlowNone SourceFlow = "none"
@@ -45,10 +49,6 @@ const (
 
 	// FlowRedirect a redirect is required to authenticate the source.
 	FlowRedirect SourceFlow = "redirect"
-
-	// FlowVerification a verification code should be communicated by the
-	// customer to authenticate the source.
-	FlowVerification SourceFlow = "verification"
 )
 
 // SourceUsage represents the possible usages of a source object.
@@ -76,17 +76,26 @@ type RedirectParams struct {
 }
 
 type SourceObjectParams struct {
+	Params              `form:"*"`
+	Amount              uint64             `form:"amount"`
+	Currency            Currency           `form:"currency"`
+	Customer            string             `form:"customer"`
+	Flow                SourceFlow         `form:"flow"`
+	OriginalSource      string             `form:"original_source"`
+	Owner               *SourceOwnerParams `form:"owner"`
+	Redirect            *RedirectParams    `form:"redirect"`
+	StatementDescriptor string             `form:"statement_descriptor"`
+	Token               string             `form:"token"`
+	Type                string             `form:"type"`
+	TypeData            map[string]string  `form:"-"`
+	Usage               SourceUsage        `form:"usage"`
+}
+
+// SourceObjectDetachParams is the set of parameters that can be used when detaching
+// a source from a customer.
+type SourceObjectDetachParams struct {
 	Params   `form:"*"`
-	Amount   uint64             `form:"amount"`
-	Currency Currency           `form:"currency"`
-	Customer string             `form:"customer"`
-	Flow     SourceFlow         `form:"flow"`
-	Owner    *SourceOwnerParams `form:"owner"`
-	Redirect *RedirectParams    `form:"redirect"`
-	Token    string             `form:"token"`
-	Type     string             `form:"type"`
-	TypeData map[string]string  `form:"-"`
-	Usage    SourceUsage        `form:"usage"`
+	Customer string `form:"-"`
 }
 
 type SourceOwner struct {
@@ -100,6 +109,15 @@ type SourceOwner struct {
 	VerifiedPhone   string   `json:"verified_phone"`
 }
 
+// RedirectFlowFailureReason represents the possible failure reasons of a redirect flow.
+type RedirectFlowFailureReason string
+
+const (
+	RedirectFlowFailureReasonDeclined        RedirectFlowFailureReason = "declined"
+	RedirectFlowFailureReasonProcessingError RedirectFlowFailureReason = "processing_error"
+	RedirectFlowFailureReasonUserAbort       RedirectFlowFailureReason = "user_abort"
+)
+
 // RedirectFlowStatus represents the possible statuses of a redirect flow.
 type RedirectFlowStatus string
 
@@ -111,9 +129,10 @@ const (
 
 // ReceiverFlow informs of the state of a redirect authentication flow.
 type RedirectFlow struct {
-	ReturnURL string             `json:"return_url"`
-	Status    RedirectFlowStatus `json:"status"`
-	URL       string             `json:"url"`
+	FailureReason RedirectFlowFailureReason `json:"failure_reason"`
+	ReturnURL     string                    `json:"return_url"`
+	Status        RedirectFlowStatus        `json:"status"`
+	URL           string                    `json:"url"`
 }
 
 // RefundAttributesStatus are the possible status of a receiver's refund
@@ -153,39 +172,40 @@ type ReceiverFlow struct {
 	RefundAttributesStatus RefundAttributesStatus `json:"refund_attributes_status"`
 }
 
-// VerificationFlowStatus represents the possible statuses of a verification
+// CodeVerificationFlowStatus represents the possible statuses of a code verification
 // flow.
-type VerificationFlowStatus string
+type CodeVerificationFlowStatus string
 
 const (
-	VerificationFlowStatusFailed    VerificationFlowStatus = "failed"
-	VerificationFlowStatusPending   VerificationFlowStatus = "pending"
-	VerificationFlowStatusSucceeded VerificationFlowStatus = "succeeded"
+	CodeVerificationFlowStatusFailed    CodeVerificationFlowStatus = "failed"
+	CodeVerificationFlowStatusPending   CodeVerificationFlowStatus = "pending"
+	CodeVerificationFlowStatusSucceeded CodeVerificationFlowStatus = "succeeded"
 )
 
-// ReceiverFlow informs of the state of a verification authentication flow.
-type VerificationFlow struct {
-	AttemptsRemaining uint64             `json:"attempts_remaining"`
-	Status            RedirectFlowStatus `json:"status"`
+// CodeVerificationFlow informs of the state of a verification authentication flow.
+type CodeVerificationFlow struct {
+	AttemptsRemaining uint64                     `json:"attempts_remaining"`
+	Status            CodeVerificationFlowStatus `json:"status"`
 }
 
 type Source struct {
-	Amount       int64             `json:"amount"`
-	ClientSecret string            `json:"client_secret"`
-	Created      int64             `json:"created"`
-	Currency     Currency          `json:"currency"`
-	Flow         SourceFlow        `json:"flow"`
-	ID           string            `json:"id"`
-	Live         bool              `json:"livemode"`
-	Meta         map[string]string `json:"metadata"`
-	Owner        SourceOwner       `json:"owner"`
-	Receiver     *ReceiverFlow     `json:"receiver,omitempty"`
-	Redirect     *RedirectFlow     `json:"redirect,omitempty"`
-	Status       SourceStatus      `json:"status"`
-	Type         string            `json:"type"`
-	TypeData     map[string]interface{}
-	Usage        SourceUsage       `json:"usage"`
-	Verification *VerificationFlow `json:"verification,omitempty"`
+	Amount              int64                 `json:"amount"`
+	ClientSecret        string                `json:"client_secret"`
+	CodeVerification    *CodeVerificationFlow `json:"code_verification,omitempty"`
+	Created             int64                 `json:"created"`
+	Currency            Currency              `json:"currency"`
+	Flow                SourceFlow            `json:"flow"`
+	ID                  string                `json:"id"`
+	Live                bool                  `json:"livemode"`
+	Meta                map[string]string     `json:"metadata"`
+	Owner               SourceOwner           `json:"owner"`
+	Receiver            *ReceiverFlow         `json:"receiver,omitempty"`
+	Redirect            *RedirectFlow         `json:"redirect,omitempty"`
+	StatementDescriptor string                `json:"statement_descriptor"`
+	Status              SourceStatus          `json:"status"`
+	Type                string                `json:"type"`
+	TypeData            map[string]interface{}
+	Usage               SourceUsage `json:"usage"`
 }
 
 // AppendTo implements custom encoding logic for SourceObjectParams so that the special

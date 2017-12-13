@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 )
 
 const tagName = "form"
@@ -27,7 +26,17 @@ type Appender interface {
 	AppendTo(values *Values, keyParts []string)
 }
 
-type encoderFunc func(values *Values, v reflect.Value, keyParts []string, options *formOptions)
+// encoderFunc is used to encode any type from a request.
+//
+// A note about encodeZero: Since some types in the Stripe API are defaulted to
+// non-zero values, and Go defaults types to their zero values, any type that
+// has a Stripe API default of a non-zero value is defined as a Go pointer,
+// meaning nil defaults to the Stripe API non-zero value. To override this, a
+// check is made to see if the value is the zero-value for that type. If it is
+// and encodeZero is true, it's encoded. This is ignored as a parameter when
+// dealing with types like structs, where the decision cannot be made
+// preemptively.
+type encoderFunc func(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions)
 
 // field represents a single field found in a struct. It caches information
 // about that field so that we can make encoding faster.
@@ -68,7 +77,7 @@ type structEncoder struct {
 	fieldEncs []encoderFunc
 }
 
-func (se *structEncoder) encode(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
+func (se *structEncoder) encode(values *Values, v reflect.Value, keyParts []string, _ bool, _ *formOptions) {
 	for i, f := range se.fields {
 		var fieldKeyParts []string
 		fieldV := v.Field(f.index)
@@ -84,7 +93,7 @@ func (se *structEncoder) encode(values *Values, v reflect.Value, keyParts []stri
 			fieldKeyParts = append(keyParts, f.formName)
 		}
 
-		se.fieldEncs[i](values, fieldV, fieldKeyParts, f.options)
+		se.fieldEncs[i](values, fieldV, fieldKeyParts, f.isPtr, f.options)
 		if f.isAppender && (!f.isPtr || !fieldV.IsNil()) {
 			fieldV.Interface().(Appender).AppendTo(values, fieldKeyParts)
 		}
@@ -98,19 +107,19 @@ func (se *structEncoder) encode(values *Values, v reflect.Value, keyParts []stri
 var Strict = false
 
 var encoderCache struct {
-	mu    sync.Mutex   // used only by writers
-	value atomic.Value // map[reflect.Type]encoderFunc
+	m  map[reflect.Type]encoderFunc
+	mu sync.RWMutex // for coordinating concurrent operations on m
 }
 
 var structCache struct {
-	mu    sync.Mutex   // used only by writers
-	value atomic.Value // map[reflect.Type]*structEncoder
+	m  map[reflect.Type]*structEncoder
+	mu sync.RWMutex // for coordinating concurrent operations on m
 }
 
 // AppendTo uses reflection to form encode into the given values collection
 // based off the form tags that it defines.
 func AppendTo(values *Values, i interface{}) {
-	reflectValue(values, reflect.ValueOf(i), nil)
+	reflectValue(values, reflect.ValueOf(i), false, nil)
 }
 
 // AppendToPrefixed is the same as AppendTo, but it allows a slice of key parts
@@ -120,7 +129,7 @@ func AppendTo(values *Values, i interface{}) {
 // for recipients. Recipients is going away, and when it does, we can probably
 // remove it again.
 func AppendToPrefixed(values *Values, i interface{}, keyParts []string) {
-	reflectValue(values, reflect.ValueOf(i), keyParts)
+	reflectValue(values, reflect.ValueOf(i), false, keyParts)
 }
 
 // FormatKey takes a series of key parts that may be parameter keyParts, map keys,
@@ -140,24 +149,23 @@ func FormatKey(parts []string) string {
 
 // ---
 
-func boolEncoder(values *Values, v reflect.Value, keyParts []string, options *formOptions) {
-	if !v.Bool() {
+func boolEncoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
+	val := v.Bool()
+	if !val && !encodeZero {
 		return
 	}
 
 	if options != nil {
-		if v.Bool() {
-			switch {
-			case options.Empty:
-				values.Add(FormatKey(keyParts), "")
-			case options.Invert:
-				values.Add(FormatKey(keyParts), strconv.FormatBool(false))
-			case options.Zero:
-				values.Add(FormatKey(keyParts), "0")
-			}
+		switch {
+		case options.Empty:
+			values.Add(FormatKey(keyParts), "")
+		case options.Invert:
+			values.Add(FormatKey(keyParts), strconv.FormatBool(false))
+		case options.Zero:
+			values.Add(FormatKey(keyParts), "0")
 		}
 	} else {
-		values.Add(FormatKey(keyParts), strconv.FormatBool(v.Bool()))
+		values.Add(FormatKey(keyParts), strconv.FormatBool(val))
 	}
 }
 
@@ -165,7 +173,7 @@ func buildArrayOrSliceEncoder(t reflect.Type) encoderFunc {
 	// Gets an encoder for the type that the array or slice will hold
 	elemF := getCachedOrBuildTypeEncoder(t.Elem())
 
-	return func(values *Values, v reflect.Value, keyParts []string, options *formOptions) {
+	return func(values *Values, v reflect.Value, keyParts []string, _ bool, options *formOptions) {
 		// FormatKey automatically adds square brackets, so just pass an empty
 		// string into the breadcrumb trail
 		arrNames := append(keyParts, "")
@@ -179,7 +187,7 @@ func buildArrayOrSliceEncoder(t reflect.Type) encoderFunc {
 			}
 
 			indexV := v.Index(i)
-			elemF(values, indexV, arrNames, nil)
+			elemF(values, indexV, arrNames, indexV.Kind() == reflect.Ptr, nil)
 
 			if isAppender(indexV.Type()) && !indexV.IsNil() {
 				v.Interface().(Appender).AppendTo(values, arrNames)
@@ -192,11 +200,11 @@ func buildPtrEncoder(t reflect.Type) encoderFunc {
 	// Gets an encoder for the type that the pointer wraps
 	elemF := getCachedOrBuildTypeEncoder(t.Elem())
 
-	return func(values *Values, v reflect.Value, keyParts []string, options *formOptions) {
+	return func(values *Values, v reflect.Value, keyParts []string, _ bool, options *formOptions) {
 		if v.IsNil() {
 			return
 		}
-		elemF(values, v.Elem(), keyParts, options)
+		elemF(values, v.Elem(), keyParts, true, options)
 	}
 }
 
@@ -205,23 +213,29 @@ func buildStructEncoder(t reflect.Type) encoderFunc {
 	return se.encode
 }
 
-func float32Encoder(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
-	if v.Float() == 0.0 {
+func float32Encoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
+	val := v.Float()
+	if val == 0.0 && !encodeZero {
 		return
 	}
-	values.Add(FormatKey(keyParts), strconv.FormatFloat(v.Float(), 'f', 4, 32))
+	values.Add(FormatKey(keyParts), strconv.FormatFloat(val, 'f', 4, 32))
 }
 
-func float64Encoder(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
-	if v.Float() == 0.0 {
+func float64Encoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
+	val := v.Float()
+	if val == 0.0 && !encodeZero {
 		return
 	}
-	values.Add(FormatKey(keyParts), strconv.FormatFloat(v.Float(), 'f', 4, 64))
+	values.Add(FormatKey(keyParts), strconv.FormatFloat(val, 'f', 4, 64))
 }
 
 func getCachedOrBuildStructEncoder(t reflect.Type) *structEncoder {
-	m, _ := structCache.value.Load().(map[reflect.Type]*structEncoder)
-	f := m[t]
+	// Just acquire a read lock when extracting a value (note that in Go, a map
+	// cannot be read while it's also being written).
+	structCache.mu.RLock()
+	f := structCache.m[t]
+	structCache.mu.RUnlock()
+
 	if f != nil {
 		return f
 	}
@@ -236,13 +250,10 @@ func getCachedOrBuildStructEncoder(t reflect.Type) *structEncoder {
 	structCache.mu.Lock()
 	defer structCache.mu.Unlock()
 
-	m, _ = structCache.value.Load().(map[reflect.Type]*structEncoder)
-	newM := m
-	if newM == nil {
-		newM = make(map[reflect.Type]*structEncoder)
-		structCache.value.Store(newM)
+	if structCache.m == nil {
+		structCache.m = make(map[reflect.Type]*structEncoder)
 	}
-	newM[t] = f
+	structCache.m[t] = f
 
 	return f
 }
@@ -251,8 +262,12 @@ func getCachedOrBuildStructEncoder(t reflect.Type) *structEncoder {
 // the cache, and falls back to building one if there wasn't a cached one
 // available. If an encoder is built, it's stored back to the cache.
 func getCachedOrBuildTypeEncoder(t reflect.Type) encoderFunc {
-	m, _ := encoderCache.value.Load().(map[reflect.Type]encoderFunc)
-	f := m[t]
+	// Just acquire a read lock when extracting a value (note that in Go, a map
+	// cannot be read while it's also being written).
+	encoderCache.mu.RLock()
+	f := encoderCache.m[t]
+	encoderCache.mu.RUnlock()
+
 	if f != nil {
 		return f
 	}
@@ -267,65 +282,65 @@ func getCachedOrBuildTypeEncoder(t reflect.Type) encoderFunc {
 	encoderCache.mu.Lock()
 	defer encoderCache.mu.Unlock()
 
-	m, _ = encoderCache.value.Load().(map[reflect.Type]encoderFunc)
-	newM := m
-	if newM == nil {
-		newM = make(map[reflect.Type]encoderFunc)
-		encoderCache.value.Store(newM)
+	if encoderCache.m == nil {
+		encoderCache.m = make(map[reflect.Type]encoderFunc)
 	}
-	newM[t] = f
+	encoderCache.m[t] = f
 
 	return f
 }
 
-func intEncoder(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
-	if v.Int() == 0 {
+func intEncoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
+	val := v.Int()
+	if val == 0 && !encodeZero {
 		return
 	}
-	values.Add(FormatKey(keyParts), strconv.FormatInt(v.Int(), 10))
+	values.Add(FormatKey(keyParts), strconv.FormatInt(val, 10))
 }
 
-func interfaceEncoder(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
+func interfaceEncoder(values *Values, v reflect.Value, keyParts []string, _ bool, _ *formOptions) {
 	if v.IsNil() {
 		return
 	}
-	reflectValue(values, v.Elem(), keyParts)
+	reflectValue(values, v.Elem(), false, keyParts)
 }
 
 func isAppender(t reflect.Type) bool {
 	return t.Implements(reflect.TypeOf((*Appender)(nil)).Elem())
 }
 
-func mapEncoder(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
+func mapEncoder(values *Values, v reflect.Value, keyParts []string, _ bool, _ *formOptions) {
 	for _, keyVal := range v.MapKeys() {
 		if Strict && keyVal.Kind() != reflect.String {
 			panic("Don't support serializing maps with non-string keys")
 		}
 
-		reflectValue(values, v.MapIndex(keyVal), append(keyParts, keyVal.String()))
+		reflectValue(values, v.MapIndex(keyVal), false, append(keyParts, keyVal.String()))
 	}
 }
 
-func stringEncoder(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
-	if v.String() == "" {
+func stringEncoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
+	val := v.String()
+	if val == "" && !encodeZero {
 		return
 	}
-	values.Add(FormatKey(keyParts), v.String())
+	values.Add(FormatKey(keyParts), val)
 }
 
-func uintEncoder(values *Values, v reflect.Value, keyParts []string, _ *formOptions) {
-	if v.Uint() == 0 {
+func uintEncoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
+	val := v.Uint()
+	if val == 0 && !encodeZero {
 		return
 	}
-	values.Add(FormatKey(keyParts), strconv.FormatUint(v.Uint(), 10))
+	values.Add(FormatKey(keyParts), strconv.FormatUint(val, 10))
 }
 
-func reflectValue(values *Values, v reflect.Value, keyParts []string) {
+func reflectValue(values *Values, v reflect.Value, _ bool, keyParts []string) {
 	t := v.Type()
 
 	f := getCachedOrBuildTypeEncoder(t)
 	if f != nil {
-		f(values, v, keyParts, nil)
+		f(values, v, keyParts, v.Kind() == reflect.Ptr, nil)
 	}
 
 	if isAppender(t) {
@@ -357,9 +372,12 @@ func makeStructEncoder(t reflect.Type) *structEncoder {
 			continue
 		}
 
+		fldTyp := reflectField.Type
+		fldKind := fldTyp.Kind()
+
 		if Strict && options != nil &&
 			(options.Empty || options.Invert || options.Zero) &&
-			reflectField.Type.Kind() != reflect.Bool {
+			fldKind != reflect.Bool {
 
 			panic(fmt.Sprintf(
 				"Cannot specify `empty`, `invert`, or `zero` for non-boolean field; on: %s/%s",
@@ -367,20 +385,15 @@ func makeStructEncoder(t reflect.Type) *structEncoder {
 			))
 		}
 
-		var isPtr bool
-		if reflectField.Type.Kind() == reflect.Ptr {
-			isPtr = true
-		}
-
 		se.fields = append(se.fields, &field{
 			formName:   formName,
 			index:      i,
-			isAppender: isAppender(reflectField.Type),
-			isPtr:      isPtr,
+			isAppender: isAppender(fldTyp),
+			isPtr:      fldKind == reflect.Ptr,
 			options:    options,
 		})
 		se.fieldEncs = append(se.fieldEncs,
-			getCachedOrBuildTypeEncoder(reflectField.Type))
+			getCachedOrBuildTypeEncoder(fldTyp))
 	}
 
 	return se

@@ -37,3 +37,24 @@ func TestSourceUpdate(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, source)
 }
+
+func TestSourceDetach(t *testing.T) {
+	source, err := Detach("src_123", &stripe.SourceObjectDetachParams{
+		Customer: "cus_123",
+	})
+	assert.Nil(t, err)
+	assert.NotNil(t, source)
+}
+
+func TestSourceSharing(t *testing.T) {
+	params := &stripe.SourceObjectParams{
+		Type:           "card",
+		Customer:       "cus_123",
+		OriginalSource: "src_123",
+		Usage:          stripe.UsageReusable,
+	}
+	params.SetStripeAccount("acct_123")
+	source, err := New(params)
+	assert.Nil(t, err)
+	assert.NotNil(t, source)
+}

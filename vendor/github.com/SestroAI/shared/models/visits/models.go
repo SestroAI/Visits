@@ -18,12 +18,13 @@ type MerchantVisit struct {
 	StartTime    time.Time         `json:"startTime"`
 	EndTime      time.Time         `json:"endTime"`
 	TableId      string            `json:"tableId"`
-	Transactions []string          `json:"transactions"`
+	Bills 		 []string          `json:"bills"`
 	IsComplete   bool              `json:"isComplete"`
 	IsOpenForAll bool              `json:"isOpenForAll"`
 	Payer 		 string 		   `json:"payer"`
 	GuestRating  *Rating 		   `json:"guestRating"`
 	MerchantId 	 string 		   `json:"merchantId"`
+	IsPaid		 bool 		       `json:"isPaid"`
 }
 
 func NewMerchantVisit(id string) *MerchantVisit {
@@ -39,7 +40,8 @@ func NewMerchantVisit(id string) *MerchantVisit {
 	}
 	visit.ID = id
 	visit.Diners = map[string]string{}
-	visit.Transactions = make([]string, 0)
+	visit.Bills = make([]string, 0)
+	visit.IsPaid = false
 	visit.StartTime = time.Now()
 	return &visit
 }
@@ -52,6 +54,8 @@ type VisitDinerSession struct {
 	MerchantRating *Rating		  `json:"merchantRating",mapstructure:"merchantRating,squash"`
 	Payer		 string 		  `json:"payer"`
 	VisitId 	 string 		  `json:"visitId"`
+	IsPaid		 bool 			  `json:"isPaid"`
+	BillId       string           `json:"billId"`
 }
 
 func NewVisitDinerSession() *VisitDinerSession {
@@ -62,5 +66,6 @@ func NewVisitDinerSession() *VisitDinerSession {
 	sess.MerchantRating = &Rating{}
 	sess.DinerId = ""
 	sess.VisitId = ""
+	sess.IsPaid = false
 	return &sess
 }

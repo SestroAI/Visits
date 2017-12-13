@@ -9,7 +9,7 @@ type BillingDao struct {
 }
 
 const (
-	USER_BILLS_PATH = "user_bills"
+	USER_BILLS_PATH = "/user_bills"
 )
 
 func NewBillingDao(token string) *BillingDao {
@@ -33,4 +33,32 @@ func (ref *BillingDao) GetUserBillById(id string, userId string) (*billing.UserB
 	err = MapToStruct(object.(map[string]interface{}), &ub)
 
 	return &ub, err
+}
+
+func (ref *BillingDao) GetAllUserBills(userId string) ([]*billing.UserBill, error) {
+	object, err := ref.GetObjectById(userId, USER_BILLS_PATH)
+	if err != nil {
+		return nil, err
+	}
+
+	list := make([]*billing.UserBill, 0)
+
+	if object == nil {
+		//return empty list
+		return list, nil
+	}
+
+	var billList map[string]billing.UserBill
+
+	err = MapToStruct(object.(map[string]interface{}), &billList)
+	if err != nil {
+		return nil, err
+	}
+
+	//Convert to map to list
+	for _, bill := range billList {
+		list = append(list, &bill)
+	}
+
+	return list, err
 }

@@ -56,7 +56,7 @@ func (ref *Dao) GetByFirebaseUrlPath(path string) (interface{}, error) {
 		return nil, err
 	}
 	if res == nil {
-		return nil, nil
+		return nil, errors.New("Empty Object returned from firebase for path = " + path)
 	}
 
 
