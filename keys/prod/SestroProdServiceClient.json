@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "sestro-prod",
+  "private_key_id": "947c067952025d9450f0f6587156dab580eeae1d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDwSMa7zxJm1h2f\nCndwpvqLGPm13fx12W1mwsPcgixE2f8LGIn3znfRVWLH3QPe1bBl/zyNYM2QACQ/\nbcTglfD9Jg266RVBcVGPS9b/sSFxCspgidaYTGHpVvj+4uskOzkHQYwUfWwicDAc\nKjCgBR61N37nnGro13PqLveqOqjaY0li3zotPIFSqcfd8kwkjyBkr6OR6qjRafBs\ndeGRXokPfuQv1CJZHCGTF57IpOFjfCl7MTMo8pA7g+KeLNI2WTCTxlkWxaj4bFX+\niqMrjAoN+PGhlVeI7iHe9Hq/SZwED/4Wh80rJvLVlVbGl0hwK7HYSD6dK9gFrfWy\n3v5BmmWVAgMBAAECggEABTijnuGgm1JJmagzJmQZJiF1uE1kUWrsgmg23tQHomW1\nRyMHnnZNVWO8WNj1NFKi5GMqiEJDUpQk4CmiYU9IybYZuXHGp+HOkqVPJ5u2/RCY\nYLF7aQWh4V2QiA4GFjG2QHGHbyDhkxGqg0t/ESnDUXns/JtCGctSu2g9XU+B1fWk\naMz3dwg6DKk8LrPPRBowYFOw144R03pb5zBvZiEQrK/8nHMEx5zufFbDfbVZe6BO\n85RA6+8DFGScMddmFsUHOfq6mzDlEZFOEdFkKeorjfsWbcoi9YWQDYgaZdbtB73r\nUVsMOEGklDZWtnPg+kGv0N5EYi1PsYV8ZMyjPNP7aQKBgQD44v16nYvR7eCaXSOz\n/NQs1SXh3JdE05isP2OIztWqQTpizEQDAi7qo4A0xJQ9RUvHrg5iJXHHDwgy1mfY\nBBmbZr0psiI99rEJqw2hujT/GolYAk+36hYLCJhi0ISmL6R1PONaQOrlQ+U+vAIR\ntK7MKj44K0beKWTaN8DjY+Vc6QKBgQD3Jth80ucYIHgScd97oiSoLS4ELVWotoW9\n1pLwBTgGxeEpY/0yzi1yoQyi5sbrChua8RjW4d54iVAAxej5BwnwSQrRTPgZtwRk\njqr72FCufqc1ZTnk5C83fhy1iWnq+AHxJ3mIDryN8nndBq+93HXMZeTExBJj0SNM\nDlbb6NunzQKBgQDb+pz59Cfx26OKLEpzOkM6gQZjlDprTe6CR+CsucumGNMHIe33\nDsXzA6I8gYdYhFgPXGtAGkJvI30mmdTc2/raHLuTD+wuAk3F8tcwm8ldtNGx5REa\nyB7Fj8pIhG7KCA/+w1tbmUdEbnc/tKLLjXx13dxyfuW7VLDcIy0sjk3aiQKBgQDx\nyBXHX0dmSfVNDgt0VnYH9FLtETCYYR7LTYvntSNPNOwF4uSDfEHnvveusZdtvjCt\nTilfpg1O2/3hE7vLSwCFCd/ES8j21x08Bnns8HxViF+pk8KkUjqCziPl0G1GyaKU\nuWpiGRCKyOhAutbYJUE0WYYInEvlTGZ8dBazAcVJDQKBgQDJY5wVmQd855Wb1fJg\nH+8UfrXUo7KRadHBA9EoWNbAqKXX/xDdVjoJInBqVS+ZQPGTQcQgpzj/nKWCJgfX\nH2V7NoZk7fGwzWMFEXLdlSgpEKnQ0vqezsT6C/ztUE6z55X9r24QV3BGG77jFlmn\njKHIYucwe4C9HCNpO+Q0Gq9q1A==\n-----END PRIVATE KEY-----\n",
+  "client_email": "sestro-prod-billing@sestro-prod.iam.gserviceaccount.com",
+  "client_id": "108463489499371536300",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sestro-prod-billing%40sestro-prod.iam.gserviceaccount.com"
+}
